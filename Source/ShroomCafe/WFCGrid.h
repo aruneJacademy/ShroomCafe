@@ -9,7 +9,7 @@
 #include "WFCGrid.generated.h"
 
 UENUM(BlueprintType)
-enum class ETile: uint8
+enum class ETileType: uint8
 {
 	Unknown UMETA(DisplayName = "Unknown"),
 	Grass UMETA(DisplayName = "Grass"),
@@ -30,7 +30,7 @@ class SHROOMCAFE_API AWFCGrid : public AActor
 public:	
 	AWFCGrid() {}
 	// Sets default values for this actor's properties
-	AWFCGrid(int rows, int columns, TArray<ATile>& tiles);
+	AWFCGrid(int rows, int columns, TArray<FTile>& tiles);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	int32 GridWidth = 5;
@@ -38,9 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	int32 GridHeight = 5;
 
-	TArray<ACell> Cells;
+	TArray< TArray<FCell> > Cells;
 	
-	TArray<ATile> PossibleTiles;
+	TArray<FTile> PossibleTiles;
 
 
 protected:

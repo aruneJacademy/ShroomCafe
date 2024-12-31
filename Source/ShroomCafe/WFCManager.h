@@ -19,14 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	AWFCManager();
 
-	// pull tiles from json later 
-	void InitializeGrid(int rows, int columns, TArray<ATile>& tiles);
-	void GenerateGrid();
-	void SpawnGrid();
+	TArray<FTile> Tiles;
 
-	TArray<FTileData> Tiles;
-	void CreateTiles();
-	UStaticMeshComponent* GetTileMesh(FString TargetName);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	int32 GridWidth = 5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	int32 GridHeight = 5;
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,4 +35,20 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// pull tiles from json later 
+	UFUNCTION(BlueprintCallable, Category = "Grid")
+	void InitializeGrid(int rows, int columns);
+
+	UFUNCTION(BlueprintCallable, Category = "Grid")
+	void GenerateGrid();
+
+	UFUNCTION(BlueprintCallable, Category = "Grid")
+	void SpawnGrid();
+
+	void CreateTiles();
+
+	void OnProceduralGeneration();
+
+	AWFCGrid* Grid{ nullptr };
+	
 };

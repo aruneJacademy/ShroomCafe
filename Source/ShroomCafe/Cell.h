@@ -6,33 +6,54 @@
 #include "GameFramework/Actor.h"
 #include "Cell.generated.h"
 
-UCLASS()
-class SHROOMCAFE_API ACell : public AActor
+
+
+USTRUCT(BlueprintType)
+struct FCell
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ACell();
+
+public:
 
 	int32 CellID{ 0 };
 	bool bIsCollapsed{ false };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	FVector2D WorldPos;
-	TArray<int8> PossibleTiles;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	TArray<uint8> PossibleTiles;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-
-
+	FCell() {}
 };
+
+//UCLASS()
+//class SHROOMCAFE_API ACell : public AActor
+//{
+//	GENERATED_BODY()
+//	
+//public:	
+//	// Sets default values for this actor's properties
+//	ACell();
+//
+//	int32 CellID{ 0 };
+//	bool bIsCollapsed{ false };
+//
+//	FVector2D WorldPos;
+//	TArray<int8> PossibleTiles;
+//
+//	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
+//
+//	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
+//
+//protected:
+//	// Called when the game starts or when spawned
+//	virtual void BeginPlay() override;
+//
+//public:	
+//	// Called every frame
+//	virtual void Tick(float DeltaTime) override;
+//
+//
+//
+//};

@@ -6,8 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Tile.generated.h"
 
+
+
 USTRUCT(BlueprintType)
-struct FTileData
+struct FTile
 {
 	GENERATED_BODY()
 
@@ -23,31 +25,31 @@ public:
 
 	void SetTileMesh(UStaticMeshComponent* Mesh) { TileMesh = Mesh; }
 
-	FTileData() {}
-	FTileData(uint8 ID, TArray<uint8> Neighbors) :
+	FTile() {}
+	FTile(uint8 ID, TArray<uint8> Neighbors) :
 		TileID(ID), AllowedNeighbors(Neighbors) {}
 };
 
-UCLASS()
-class SHROOMCAFE_API ATile : public AActor
-{
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ATile();
-
-	
-
-	FTileData* TileData;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	
-};
+//UCLASS()
+//class SHROOMCAFE_API ATile : public AActor
+//{
+//	GENERATED_BODY()
+//	
+//public:	
+//	// Sets default values for this actor's properties
+//	ATile();
+//
+//	
+//
+//	FTileData* TileData;
+//
+//protected:
+//	// Called when the game starts or when spawned
+//	virtual void BeginPlay() override;
+//
+//public:	
+//	// Called every frame
+//	virtual void Tick(float DeltaTime) override;
+//
+//	
+//};

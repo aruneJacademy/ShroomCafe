@@ -2,92 +2,129 @@
 
 
 #include "WFCManager.h"
-#include <Kismet/GameplayStatics.h>
-#include <Engine/StaticMeshActor.h>
+#include "WFCUtils.h"
+#include "Engine/StaticMeshActor.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 
 // Sets default values
 AWFCManager::AWFCManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CreateTiles();
 }
 
 // Called when the game starts or when spawned
 void AWFCManager::BeginPlay()
 {
-	//Super::BeginPlay();
+	Super::BeginPlay();
+	//UE_LOG(LogTemp, Warning, TEXT("Creating Tiles"));
 	
 }
 
 // Called every frame
 void AWFCManager::Tick(float DeltaTime)
 {
-	//Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
 
 }
 
 void AWFCManager::CreateTiles()
 {
-	Tiles.SetNum((int)ETile::Max_Tiles);
+	Tiles.SetNum((int)ETileType::Max_Tiles);
+	UWorld* World = GetWorld();
 
-	FTileData UnknownTile((int)ETile::Unknown, TArray<uint8>{ (int)ETile::Bush, (int)ETile::Grass, (int)ETile::Tree, (int)ETile::Path, (int)ETile::Empty });
-	UnknownTile.SetTileMesh(GetTileMesh(FString( "TileMeshUnknown" )));
+	UE_LOG(LogTemp, Warning, TEXT("Creating Tiles Aleliuja 2025"));
+
+	FTile UnknownTile((int)ETileType::Unknown, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
+	UnknownTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshUnknown" ), World));
 	Tiles.Add(UnknownTile);
+	UE_LOG(LogTemp, Warning, TEXT("Tile number One: TileMeshUnknown" ));
 	
-	FTileData GrassTile((int)ETile::Grass, TArray<uint8>{ (int)ETile::Bush, (int)ETile::Grass, (int)ETile::Tree, (int)ETile::Path, (int)ETile::Empty });
-	GrassTile.SetTileMesh(GetTileMesh(FString( "TileMeshGrass" )));
+	FTile GrassTile((int)ETileType::Grass, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
+	GrassTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshGrass" ), World));
 	Tiles.Add(GrassTile);
+	UE_LOG(LogTemp, Warning, TEXT("Tile number Two: %i"), (int)ETileType::Grass);
 
-	FTileData TreeTile((int)ETile::Tree, TArray<uint8>{ (int)ETile::Bush, (int)ETile::Grass, (int)ETile::Empty });
-	TreeTile.SetTileMesh(GetTileMesh(FString( "TileMeshTree" )));
+	FTile TreeTile((int)ETileType::Tree, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Empty });
+	TreeTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshTree" ), World));
 	Tiles.Add(TreeTile);
 
-	FTileData BushTile((int)ETile::Bush, TArray<uint8>{ (int)ETile::Bush, (int)ETile::Grass, (int)ETile::Tree, (int)ETile::Path });
-	BushTile.SetTileMesh(GetTileMesh(FString( "TileMeshBush" )));
+	FTile BushTile((int)ETileType::Bush, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
+	BushTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshBush" ), World));
 	Tiles.Add(BushTile);
 
-	FTileData PathTile((int)ETile::Path, TArray<uint8>{ (int)ETile::Bush, (int)ETile::Grass, (int)ETile::Path });
-	PathTile.SetTileMesh(GetTileMesh(FString( "TileMeshPath" )));
+	FTile PathTile((int)ETileType::Path, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Path });
+	PathTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshPath" ), World));
 	Tiles.Add(PathTile);
 
-	FTileData EmptyTile((int)ETile::Empty, TArray<uint8>{ (int)ETile::Grass, (int)ETile::Tree, (int)ETile::Path, (int)ETile::Empty });
-	EmptyTile.SetTileMesh(GetTileMesh(FString( "TileMeshEmpty" )));
+	FTile EmptyTile((int)ETileType::Empty, TArray<uint8>{ (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
+	EmptyTile.SetTileMesh(WFCUtils::GetTileMesh(FString( "TileMeshEmpty" ), World));
 	Tiles.Add(EmptyTile);
 }
 
-UStaticMeshComponent* AWFCManager::GetTileMesh(FString TargetName)
+void AWFCManager::InitializeGrid(int Rows, int Columns)
 {
-	UWorld* World = GetWorld();
-	if (!World)
+	Grid = GetWorld()->SpawnActor<AWFCGrid>(AWFCGrid::StaticClass());
+	Grid->GridHeight = Rows;
+	Grid->GridWidth = Columns;
+
+	Grid->Cells.SetNum(Rows);
+	for (int Row = 0; Row < Rows; ++Row)
 	{
-		return nullptr;
+		Grid->Cells[ Row ].SetNum(Columns);  // Create columns for each row
 	}
 
-	// Array to store all actors of the desired class
-	TArray<AActor*> FoundActors;
-
-	// Find all actors of the desired class (e.g., AStaticMeshActor)
-	UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), FoundActors);
-
-	for (AActor* Actor : FoundActors)
+	for (int Row = 0; Row < Rows; ++Row)
 	{
-		if (Actor && Actor->GetName() == TargetName)
+		for (int Column = 0; Column < Columns; ++Column)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Actor: %s"), *Actor->GetName());
-
-			// Cast to AStaticMeshActor to access the StaticMeshComponent
-			AStaticMeshActor* MeshActor = Cast<AStaticMeshActor>(Actor);
-			if (MeshActor)
+			//FCell& Cell = Grid->Cells[Row][Column];
+			//Cell.WorldPos = FVector2D(Row * 100, Column * 100);  
+			// Add all tile IDs to the cell's possible tiles
+			for (const FTile& Tile : Tiles)
 			{
-				UStaticMeshComponent* MeshComponent = MeshActor->GetStaticMeshComponent();
-				if (MeshComponent)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Static Mesh Name: %s"), *MeshComponent->GetStaticMesh()->GetName());
-					return MeshComponent;
-				}
+				//Cell.PossibleTiles.Add(Tile.TileID);
+				//UE_LOG(LogTemp, Warning, TEXT("Adding tile to cell at row %i and column %i"), Row, Column);
 			}
-			return nullptr; // Exit the function after finding the actor
 		}
 	}
-	return nullptr;
+}
+
+void AWFCManager::GenerateGrid()
+{
+
+}
+
+void AWFCManager::SpawnGrid()
+{
+	//for (int Row = 0; Row < Grid->GridWidth; ++Row)
+	{
+		//for (int Column = 0; Column < Grid->GridHeight; ++Column)
+		{
+			//FCell& Cell = Grid->Cells[Row][Column];
+
+			//AStaticMeshActor* TileActor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), FVector(Cell.WorldPos.X, Cell.WorldPos.Y, 0), FRotator::ZeroRotator);
+			//if (TileActor)
+			//{
+			//	// Set the static mesh
+			//	UStaticMeshComponent* MeshComponent = TileActor->GetStaticMeshComponent();
+			//	if (MeshComponent)
+			//	{
+			//		//MeshComponent->SetStaticMesh(Tiles[0].TileMesh->GetStaticMesh());
+
+			//		// Optional: Configure properties (e.g., collision, material)
+			//		//MeshComponent->SetCollisionProfileName(TEXT("BlockAll"));
+			//		MeshComponent->SetMobility(EComponentMobility::Static);
+			//	}
+			//}
+		}
+	}
+}
+
+void AWFCManager::OnProceduralGeneration()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Procedural Generation"));
 }
