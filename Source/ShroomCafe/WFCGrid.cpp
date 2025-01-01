@@ -5,7 +5,7 @@
 
 
 // Sets default values
-AWFCGrid::AWFCGrid(int rows, int columns, TArray<FTile>& tiles)
+AWFCGrid::AWFCGrid(int rows, int columns, TArray<FTileData>& tiles)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

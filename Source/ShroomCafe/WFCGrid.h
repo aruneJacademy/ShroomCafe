@@ -30,18 +30,18 @@ class SHROOMCAFE_API AWFCGrid : public AActor
 public:	
 	AWFCGrid() {}
 	// Sets default values for this actor's properties
-	AWFCGrid(int rows, int columns, TArray<FTile>& tiles);
+	AWFCGrid(int rows, int columns, TArray<FTileData>& tiles);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 GridWidth = 5;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 GridHeight = 5;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	int32 CellSize = 200;
 
 	TArray< TArray<FCell> > Cells;
 	
-	TArray<FTile> PossibleTiles;
-
+	TArray<FTileData> PossibleTiles;
 
 protected:
 	// Called when the game starts or when spawned

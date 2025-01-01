@@ -19,13 +19,16 @@ public:
 	// Sets default values for this actor's properties
 	AWFCManager();
 
-	TArray<FTile> Tiles;
+	TArray<FTileData> Tiles;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	int32 GridWidth = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 GridHeight = 5;
+	int32 GridHeight = 5;*/
+
+	int32 GridWidth = 50;
+	int32 GridHeight = 100;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,7 +40,7 @@ public:
 
 	// pull tiles from json later 
 	UFUNCTION(BlueprintCallable, Category = "Grid")
-	void InitializeGrid(int rows, int columns);
+	void InitializeGrid();
 
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	void GenerateGrid();
@@ -51,4 +54,10 @@ public:
 
 	AWFCGrid* Grid{ nullptr };
 	
+private:
+	
+	ATile* SpawnTile(uint8 TileID);	
+	bool bGenerated{ false };
+
+	const TCHAR* GetMeshString(uint8 TileID);
 };
