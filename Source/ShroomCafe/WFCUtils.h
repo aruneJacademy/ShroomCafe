@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 
+
+class ATile;
+struct FCell;
 /**
  * 
  */
@@ -14,4 +17,7 @@ public:
 	~WFCUtils();
 
 	static UStaticMeshComponent* GetTileMesh(FString TargetName, UWorld* World);
+	static ATile* SpawnTile(UWorld* World, uint8 TileID);
+
+	static void SortByDistance(FCell* Target, TArray< FCell* >& Cells);
 };

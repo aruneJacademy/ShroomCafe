@@ -16,7 +16,6 @@ enum class ETileType: uint8
 	Tree UMETA(DisplayName = "Tree"),
 	Bush UMETA(DisplayName = "Bush"),
 	Path UMETA(DisplayName = "Path"),
-	Empty UMETA(DisplayName = "Empty"),
 	
 	Max_Tiles UMETA(DisplayName = "Max_Tiles")
 };
@@ -29,26 +28,23 @@ class SHROOMCAFE_API AWFCGrid : public AActor
 	
 public:	
 	AWFCGrid() {}
-	// Sets default values for this actor's properties
+	
 	AWFCGrid(int rows, int columns, TArray<FTileData>& tiles);
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 CellSize = 200;
-
-	TArray< TArray<FCell> > Cells;
-	
-	TArray<FTileData> PossibleTiles;
+	TArray<FTileData> WaveFunction;
 
 protected:
-	// Called when the game starts or when spawned
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
+	int32 CellSize = 200;
+	TArray< TArray<FCell> > Cells;
+
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	TArray < TArray<FCell> >& GetCells() { return Cells; }
+	int32 GetCellSize() const { return CellSize; }
+
+	FCell& GetCellAtPosition(FIntPoint& pos);
 };

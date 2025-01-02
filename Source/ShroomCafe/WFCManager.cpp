@@ -7,6 +7,8 @@
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "WFC.h"
+#include "PG.h"
 
 // Sets default values
 AWFCManager::AWFCManager()
@@ -14,7 +16,9 @@ AWFCManager::AWFCManager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CreateTiles();
+	// construction helpers are meant to be called in the constructor only. Other places need to use Loaders and Finders
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Script/Engine.Blueprint'/Game/WFC/TileMeshUnknown.TileMeshUnknown'"));
+	WFCAlgorithm::GenerateWaveFunction(Tiles);
 }
 
 // Called when the game starts or when spawned
@@ -31,50 +35,27 @@ void AWFCManager::Tick(float DeltaTime)
 
 	if (!bGenerated)
 	{
+		// will be promoted to delegate later
 		OnProceduralGeneration();
 		bGenerated = true;
 	}
 
+	DrawDebugGrid();
+}
+
+void AWFCManager::DrawDebugGrid()
+{
 	for (int Row = 0; Row < GridWidth; ++Row)
 	{
 		for (int Column = 0; Column < GridHeight; ++Column)
 		{
-			FCell& Cell = Grid->Cells[Row][Column];
-			DrawDebugBox(GetWorld(), FVector(Cell.WorldPos.X, Cell.WorldPos.Y, 10), FVector(Grid->CellSize, Grid->CellSize, 1), FColor::Blue, false, -1.0f, 0, 2.0f);
+			FCell& Cell = Grid->GetCells()[ Row ][ Column ];
+			DrawDebugBox(GetWorld(), Cell.GetWorldPos(), FVector(Grid->GetCellSize() / 2, Grid->GetCellSize() / 2, 1), FColor::Blue, false, -1.0f, 0, 2.0f);
 		}
 	}
 }
 
-void AWFCManager::CreateTiles()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Creating Tiles Aleliuja 2025"));
 
-	FTileData UnknownTile((int)ETileType::Unknown, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
-	UnknownTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Nimikko_WesternTown/Assets/Props/SM_Crate_03.SM_Crate_03'"));
-	Tiles.Add(UnknownTile);
-	UE_LOG(LogTemp, Warning, TEXT("Tile number One: TileMeshUnknown" ));
-	
-	FTileData GrassTile((int)ETileType::Grass, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
-	GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_grass_village.SM_ENV_PLANT_grass_village'"));
-	Tiles.Add(GrassTile);
-	UE_LOG(LogTemp, Warning, TEXT("Tile number Two: %i"), (int)ETileType::Grass);
-
-	FTileData TreeTile((int)ETileType::Tree, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Empty });
-	TreeTile.SetMeshString(FString( "/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_TREE_village_LOD0.SM_ENV_TREE_village_LOD0'" ));
-	Tiles.Add(TreeTile);
-
-	FTileData BushTile((int)ETileType::Bush, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
-	BushTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_leaf_village.SM_ENV_PLANT_leaf_village'"));
-	Tiles.Add(BushTile);
-
-	FTileData PathTile((int)ETileType::Path, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Path });
-	PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
-	Tiles.Add(PathTile);
-
-	FTileData EmptyTile((int)ETileType::Empty, TArray<uint8>{ (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path, (int)ETileType::Empty });
-	EmptyTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Nimikko_WesternTown/Assets/Structure/SM_Pillar_02.SM_Pillar_02'"));
-	Tiles.Add(EmptyTile);
-}
 
 void AWFCManager::InitializeGrid()
 {
@@ -83,33 +64,45 @@ void AWFCManager::InitializeGrid()
 	int Rows = GridWidth;
 	int Columns = GridHeight;
 
-	Grid->Cells.SetNum(Rows);
+	// Create the grid
+	Grid->GetCells().SetNum(Rows);
 	for (int Row = 0; Row < Rows; ++Row)
 	{
-		Grid->Cells[ Row ].SetNum(Columns);  // Create columns for each row
+		Grid->GetCells()[ Row ].SetNum(Columns);  // Create columns for each row
 	}
 
+	// Create cells
 	for (int Row = 0; Row < Rows; ++Row)
 	{
 		for (int Column = 0; Column < Columns; ++Column)
 		{
-			FCell& Cell = Grid->Cells[ Row ][ Column ];
-			FVector ParentPos = GetActorLocation();
-			Cell.WorldPos = FVector2D(ParentPos.X, ParentPos.Y) + FVector2D(Row * Grid->CellSize, Column * Grid->CellSize);
+			FCell& Cell = Grid->GetCells()[ Row ][ Column ];
+			Cell.Grid = this;
+			Cell.GroundOffset = 10.0f;
+			Cell.GridPos = { Row, Column };
+			Cell.Size = Grid->GetCellSize();
 
-			// Add all tile IDs to the cell's possible tiles
+			FVector ParentPos = GetActorLocation();
+
+			// Copy wave function into the cell
 			for (const FTileData& Tile : Tiles)
 			{
-				Cell.PossibleTiles.Add(Tile.TileID);
-				//UE_LOG(LogTemp, Warning, TEXT("Adding tile to cell at row %i and column %i"), Row, Column);
+				Cell.WaveFunction.Add(Tile.TileID);
 			}
+
+			Cell.WFWeights.Init(1.0f, Cell.WaveFunction.Num());
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Grid Initialized!"));
 }
 
 void AWFCManager::GenerateGrid()
 {
-
+	ProceduralPath::Generate(
+		Grid, 
+		&Grid->GetCells()[ 0 ][ 0 ], // start of path
+		&Grid->GetCells()[ GridWidth - 1 ][ GridHeight - 10 ]); // end of path
 }
 
 void AWFCManager::SpawnGrid()
@@ -118,22 +111,15 @@ void AWFCManager::SpawnGrid()
 	{
 		for (int Column = 0; Column < GridHeight; Column++)
 		{
-			FCell& Cell = Grid->Cells[Row][Column];
+			FCell& Cell = Grid->GetCells()[ Row ][ Column ];
 
-			FVector Location = FVector(Cell.WorldPos.X - (Grid->CellSize / 2), Cell.WorldPos.Y - (Grid->CellSize / 2), 1.0f);
-			
 			// spawn the first tile in the list (in the end it will be the chosen one)
-			uint8 ChosenTile = Cell.PossibleTiles[0];
-			ATile* Tile = SpawnTile(ChosenTile);
+			uint8 ChosenTile = Cell.WaveFunction[ 0 ];
+			ATile* Tile = WFCUtils::SpawnTile(GetWorld(), ChosenTile);
 			
 			if (Tile)
 			{
-				Tile->SetActorLocation(Location);
-
-				// Assign a default static mesh
-				//static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Script/Engine.Blueprint'/Game/WFC/TileMeshUnknown.TileMeshUnknown'"));
-				//UStaticMesh* MeshAsset = LoadObject<UStaticMesh> (nullptr, TEXT("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_TREE_village_LOD0.SM_ENV_TREE_village_LOD0'"));
-
+				Tile->SetActorLocation(Cell.GetWorldPos());
 				UStaticMesh* MeshAsset = LoadObject<UStaticMesh> (nullptr, GetMeshString(ChosenTile));
 
 				if (MeshAsset)
@@ -143,7 +129,7 @@ void AWFCManager::SpawnGrid()
 			}
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Spawning Grid"));
+	UE_LOG(LogTemp, Warning, TEXT("Grid Spawned!"));
 }
 			//AStaticMeshActor* TileActor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), FVector(Cell.WorldPos.X, Cell.WorldPos.Y, 0), FRotator::ZeroRotator);
 			//if (TileActor)
@@ -164,18 +150,14 @@ void AWFCManager::OnProceduralGeneration()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Procedural Generation"));
 
+	// Create grid and cells
 	InitializeGrid();
+	// WFC Algorithm
+	GenerateGrid();
+	// Spawn collapsed tiles
 	SpawnGrid();
 }
 
-ATile* AWFCManager::SpawnTile(uint8 TileID)
-{
-	FActorSpawnParameters SpawnParams;
-
-	ATile* NewTile = GetWorld()->SpawnActor<ATile>(ATile::StaticClass());
-
-	return NewTile;
-}
 
 const TCHAR* AWFCManager::GetMeshString(uint8 TileID)
 {
@@ -188,3 +170,4 @@ const TCHAR* AWFCManager::GetMeshString(uint8 TileID)
 	}
 	return nullptr;
 }
+

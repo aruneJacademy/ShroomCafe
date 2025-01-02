@@ -18,7 +18,7 @@ public:
 	FVector2D WorldPos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	uint8 TileID;
+	uint8 TileID{ 0 };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	TArray<uint8> AllowedNeighbors;
@@ -43,19 +43,16 @@ class SHROOMCAFE_API ATile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATile();
-	//ATile(FTile* Tile) : TileData(Tile) {}
 
-	//FTileData* TileData;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
-	
 };

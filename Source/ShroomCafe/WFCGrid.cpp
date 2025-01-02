@@ -15,16 +15,20 @@ AWFCGrid::AWFCGrid(int rows, int columns, TArray<FTileData>& tiles)
 // Called when the game starts or when spawned
 void AWFCGrid::BeginPlay()
 {
-	//Super::BeginPlay();
+	Super::BeginPlay();
 	
 }
 
 // Called every frame
 void AWFCGrid::Tick(float DeltaTime)
 {
-	//Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
 
 }
 
+FCell& AWFCGrid::GetCellAtPosition(FIntPoint& pos)
+{
+	return Cells[ pos.X ][ pos.Y ];
+}
 
 

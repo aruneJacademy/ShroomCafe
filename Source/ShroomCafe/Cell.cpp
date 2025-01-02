@@ -2,6 +2,8 @@
 
 
 #include "Cell.h"
+#include "WFCManager.h"
+
 
 //// Sets default values
 //ACell::ACell()
@@ -25,3 +27,21 @@
 //
 //}
 
+// return the position where mesh will be spawned
+FVector FCell::GetWorldPos() const 
+{ 
+	FVector ParentPos = Grid->GetActorLocation();
+
+	// 2D world position for the cell
+	FVector2D WorldPos = FVector2D(ParentPos.X, ParentPos.Y) + FVector2D((GridPos.X * Size) + (Size / 2), (GridPos.Y * Size) + (Size / 2));
+	// add height offset for 3D position
+	return FVector(WorldPos, ParentPos.Z + GroundOffset);
+}
+
+void FCell::SetWeight(uint8 TileID, float Weight)
+{
+	if (WFWeights.Num() == 0)
+		WFWeights.Init(1.0f, (int)ETileType::Max_Tiles);
+
+	WFWeights[ TileID ] = Weight;
+}

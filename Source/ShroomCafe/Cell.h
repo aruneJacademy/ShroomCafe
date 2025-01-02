@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Cell.generated.h"
 
-
+class AWFCManager;
 
 USTRUCT(BlueprintType)
 struct FCell
@@ -15,16 +15,21 @@ struct FCell
 
 public:
 
-	int32 CellID{ 0 };
+	FIntPoint GridPos{ 0, 0 };
 	bool bIsCollapsed{ false };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	FVector2D WorldPos;
+	float Size{ 0.0f };
+	float GroundOffset{ 0.0f };
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	TArray<uint8> PossibleTiles;
+	TArray< uint8 > WaveFunction;
+	TArray< float > WFWeights;
+	AWFCManager* Grid{ nullptr };
 
 	FCell() {}
+	FVector GetWorldPos() const;
+	FIntPoint GetGridPos() const { return GridPos; }
+	void SetWeight(uint8 TileID, float Weight);
+
 };
 
 //UCLASS()
@@ -40,7 +45,7 @@ public:
 //	bool bIsCollapsed{ false };
 //
 //	FVector2D WorldPos;
-//	TArray<int8> PossibleTiles;
+//	TArray<int8> WaveFunction;
 //
 //	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
 //
