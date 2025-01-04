@@ -12,10 +12,10 @@ UENUM(BlueprintType)
 enum class ETileType: uint8
 {
 	Unknown UMETA(DisplayName = "Unknown"),
-	Grass UMETA(DisplayName = "Grass"),
-	Tree UMETA(DisplayName = "Tree"),
-	Bush UMETA(DisplayName = "Bush"),
 	Path UMETA(DisplayName = "Path"),
+	Tree UMETA(DisplayName = "Tree"),
+	Grass UMETA(DisplayName = "Grass"),
+	Bush UMETA(DisplayName = "Bush"),
 	
 	Max_Tiles UMETA(DisplayName = "Max_Tiles")
 };

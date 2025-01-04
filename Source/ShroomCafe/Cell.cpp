@@ -41,7 +41,7 @@ FVector FCell::GetWorldPos() const
 void FCell::SetWeight(uint8 TileID, float Weight)
 {
 	if (WFWeights.Num() == 0)
-		WFWeights.Init(1.0f, (int)ETileType::Max_Tiles);
+		WFWeights.Init(-10.0f, (int)ETileType::Max_Tiles);
 
 	WFWeights[ TileID ] = Weight;
 }

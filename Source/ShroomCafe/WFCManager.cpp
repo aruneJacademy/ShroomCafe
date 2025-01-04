@@ -90,7 +90,7 @@ void AWFCManager::InitializeGrid()
 				Cell.WaveFunction.Add(Tile.TileID);
 			}
 
-			Cell.WFWeights.Init(1.0f, Cell.WaveFunction.Num());
+			Cell.WFWeights.Init(-10.0f, Cell.WaveFunction.Num());
 		}
 	}
 
@@ -103,6 +103,8 @@ void AWFCManager::GenerateGrid()
 		Grid, 
 		&Grid->GetCells()[ 0 ][ 0 ], // start of path
 		&Grid->GetCells()[ GridWidth - 1 ][ GridHeight - 10 ]); // end of path
+
+	ProceduralWorld::Generate(Grid);
 }
 
 void AWFCManager::SpawnGrid()

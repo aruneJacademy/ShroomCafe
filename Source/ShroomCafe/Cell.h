@@ -14,7 +14,6 @@ struct FCell
 	GENERATED_BODY()
 
 public:
-
 	FIntPoint GridPos{ 0, 0 };
 	bool bIsCollapsed{ false };
 
@@ -29,7 +28,8 @@ public:
 	FVector GetWorldPos() const;
 	FIntPoint GetGridPos() const { return GridPos; }
 	void SetWeight(uint8 TileID, float Weight);
-
+	bool IsCollapsed() const { return bIsCollapsed; }
+	float GetWeight(uint8 TileID) const { return WFWeights[ TileID ]; }
 };
 
 //UCLASS()

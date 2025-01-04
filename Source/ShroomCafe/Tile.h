@@ -28,6 +28,11 @@ public:
 
 	void SetMeshString(FString Mesh) { MeshString = Mesh; }
 
+	bool IsAllowedNeighbor(uint8 NeighborID) const
+	{
+		return AllowedNeighbors.Contains(NeighborID);
+	}
+
 	FTileData() {}
 	FTileData(uint8 ID, TArray<uint8> Neighbors) :
 		TileID(ID), AllowedNeighbors(Neighbors) {}
