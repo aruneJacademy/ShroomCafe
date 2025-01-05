@@ -16,25 +16,17 @@ struct FTileData
 public:
 
 	FVector2D WorldPos;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	uint8 TileID{ 0 };
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	TArray<uint8> AllowedNeighbors;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	FString MeshString;
 
 	void SetMeshString(FString Mesh) { MeshString = Mesh; }
-
-	bool IsAllowedNeighbor(uint8 NeighborID) const
-	{
-		return AllowedNeighbors.Contains(NeighborID);
-	}
+	bool IsAllowedNeighbor(uint8 NeighborID) const { return AllowedNeighbors.Contains(NeighborID); }
 
 	FTileData() {}
-	FTileData(uint8 ID, TArray<uint8> Neighbors) :
+	FTileData(uint8 ID, TArray< uint8 > Neighbors) :
 		TileID(ID), AllowedNeighbors(Neighbors) {}
 };
 

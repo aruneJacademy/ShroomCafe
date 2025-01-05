@@ -46,6 +46,7 @@ public:
 	int32 GetGridHeight() const { return GridHeight; }
 	TArray<FTileData >& GetTiles() { return Tiles; }
 	AWFCGrid* GetGrid() { return Grid; }
+	static const float EntropyThreshold;
 	
 protected:
 	TArray< FTileData > Tiles;
@@ -56,4 +57,5 @@ protected:
 	// therefore height is width and width is height
 	int32 GridWidth = 50;
 	int32 GridHeight = 100;
+	float VerticalOffset = 0.0f;
 };

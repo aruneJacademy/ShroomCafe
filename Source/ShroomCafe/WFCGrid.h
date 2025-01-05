@@ -29,14 +29,15 @@ class SHROOMCAFE_API AWFCGrid : public AActor
 public:	
 	AWFCGrid() {}
 	
-	AWFCGrid(int rows, int columns, TArray<FTileData>& tiles);
+	AWFCGrid(int rows, int columns, TArray< FTileData >& tiles);
 
-	TArray<FTileData> WaveFunction;
+	TArray< FTileData >WaveFunction;
 
 protected:
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grid")
-	int32 CellSize = 200;
-	TArray< TArray<FCell> > Cells;
+	int32 CellSize = 300;
+	TArray<TArray< FCell >>Cells;
+	int32 GridWidth;
+	int32 GridHeight;
 
 	virtual void BeginPlay() override;
 
@@ -47,4 +48,10 @@ public:
 	int32 GetCellSize() const { return CellSize; }
 
 	FCell& GetCellAtPosition(FIntPoint& pos);
+
+	int32 GetGridWidth() const { return GridWidth; }
+	int32 GetGridHeight() const { return GridHeight; }
+
+	void SetGridWidth(int32 width) { GridWidth = width; }
+	void SetGridHeight(int32 height) { GridHeight = height; }
 };

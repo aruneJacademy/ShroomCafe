@@ -1,77 +1,65 @@
 #include "WFC.h"
 #include "WFCManager.h"
+#include "WFCUtils.h"
+#include "PG.h"
 
 // later to be loaded into json
 namespace WFCData
 {
 	// Weight will be adjusted for each wave function element, based on these weights
-	TArray<std::unordered_map< ETileType, float >> FirstLayerWeights
+	TArray<std::unordered_map< ETileType, float >>FirstLayerWeights
 	{	
-		{	// Unknown Tile = 0, not needed really
-			{ ETileType::Path, 0.0f },
-			{ ETileType::Tree, 0.0f },
-			{ ETileType::Grass, 0.0f },
-			{ ETileType::Bush, 0.0f },
-		},
-		{	// Path Tile = 1, also not needed...
-			{ ETileType::Path, 0.0f },
-			{ ETileType::Tree, 0.0f },
-			{ ETileType::Grass, 0.0f },
-			{ ETileType::Bush, 0.0f },
-		},
+		{}, // Unknown Tile = 0, 
+		{}, // Path Tile = 1
+
 		{	// Tree Tile = 2
-			{ ETileType::Path, -1.0f },
-			{ ETileType::Tree, -1.0f },
-			{ ETileType::Grass, 0.1f },
-			{ ETileType::Bush, 0.2f },
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.2f },
+			{ ETileType::Grass, 0.15f },
+			{ ETileType::Bush, 0.3f },
 		},
 		{	// Grass Tile = 3 
-			{ ETileType::Path, 1.0f },
+			{ ETileType::Path, 0.25f },
 			{ ETileType::Tree, 0.2f },
-			{ ETileType::Grass, 0.1f },
-			{ ETileType::Bush, 0.2f },
+			{ ETileType::Grass, 0.05f },
+			{ ETileType::Bush, 0.3f },
 		},
 		{	// Bush Tile = 4
-			{ ETileType::Path, -1.0f },
-			{ ETileType::Tree, 0.2f },
-			{ ETileType::Grass, 0.1f },
-			{ ETileType::Bush, -0.1f },
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.3f },
+			{ ETileType::Bush, 0.1f },
 		}
 	};
 
-	TArray<std::unordered_map< ETileType, float >> SecondLayerWeights
+	TArray<std::unordered_map< ETileType, float >>SecondLayerWeights
 	{
-		{	// Unknown Tile = 0, not needed really
-			{ ETileType::Path, 0.0f },
-			{ ETileType::Tree, 0.0f },
-			{ ETileType::Grass, 0.0f },
-			{ ETileType::Bush, 0.0f },
-		},
-		{	// Path Tile = 1, also not needed...
-			{ ETileType::Path, 0.0f },
-			{ ETileType::Tree, 0.0f },
-			{ ETileType::Grass, 0.0f },
-			{ ETileType::Bush, 0.0f },
-		},
+		{}, // Unknown Tile = 0, 
+		{}, // Path Tile = 1
+
 		{	// Tree Tile = 2 
-			{ ETileType::Path, -0.2f },
-			{ ETileType::Tree, -0.3f },
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.1f },
 			{ ETileType::Grass, 0.2f },
-			{ ETileType::Bush, 0.1f },
+			{ ETileType::Bush, 0.3f },
 		},
 		{	// Grass Tile = 3
-			{ ETileType::Path, 1.0f },
+			{ ETileType::Path, 0.25f },
 			{ ETileType::Tree, 0.2f },
-			{ ETileType::Grass, 0.2f },
-			{ ETileType::Bush, 0.2f },
+			{ ETileType::Grass, 0.1f },
+			{ ETileType::Bush, 0.3f },
 		},
 		{	// Bush Tile = 4
-			{ ETileType::Path, 0.3f },
-			{ ETileType::Tree, 0.1f },
-			{ ETileType::Grass, 0.1f },
-			{ ETileType::Bush, -0.1f },
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.2f },
+			{ ETileType::Bush, 0.1f },
 		}
 	};
+
+	
+
+	
 }
 
 namespace WFCAlgorithm
@@ -86,18 +74,20 @@ namespace WFCAlgorithm
 		uint8 TileID = Cell->WaveFunction[ 0 ];
 		FTileData* CollapsedTile = &Cell->Grid->GetTiles()[ TileID ];
 
-		SweepLayer(Cell->Grid->GetGrid(), Cell, TileID, 1,
-			[ &Cell, CollapsedTile ](FCell* ACell, uint8 TileID)
+		auto UpdateEntropy = [&](FCell* ACell, uint8 TileID) -> int
 			{
 				for (int i = 0; i < ACell->WaveFunction.Num(); i++)
 				{
 					if (!CollapsedTile->IsAllowedNeighbor(ACell->WaveFunction[ i ]))
 					{
 						ACell->WFWeights[ i ] = -10.0f;
+						return 1;
 					}
 				}
-			}
-		);
+				return 0;
+			};
+
+		SweepLayer(Cell->Grid->GetGrid(), Cell, TileID, 1, UpdateEntropy);
 	}
 
 	void CollapseCell(FCell* Cell)
@@ -122,10 +112,10 @@ namespace WFCAlgorithm
 		UnknownTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Nimikko_WesternTown/Assets/Props/SM_Crate_03.SM_Crate_03'"));
 		UnknownTile.TileID;
 		Tiles.Add(UnknownTile);
-		UE_LOG(LogTemp, Warning, TEXT("Tile number One: TileMeshUnknown"));
 
 		FTileData PathTile((int)ETileType::Path, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Path });
-		PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
+		//PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
+		PathTile.SetMeshString(FString(""));
 		Tiles.Add(PathTile);
 
 		FTileData TreeTile((int)ETileType::Tree, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass });
@@ -135,57 +125,70 @@ namespace WFCAlgorithm
 		FTileData GrassTile((int)ETileType::Grass, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
 		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_grass_village.SM_ENV_PLANT_grass_village'"));
 		Tiles.Add(GrassTile);
-		UE_LOG(LogTemp, Warning, TEXT("Tile number Two: %i"), (int)ETileType::Grass);
 
 		FTileData BushTile((int)ETileType::Bush, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
 		BushTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_leaf_village.SM_ENV_PLANT_leaf_village'"));
 		Tiles.Add(BushTile);
-
-		UE_LOG(LogTemp, Warning, TEXT("Wave Function Generated!"));
 	}
 
-	int SweepLayer(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int32 Layer, std::function< void(FCell* Cell, uint8 TileID) >Func)
+	int SweepLayer(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int32 Layer, std::function< int(FCell* Cell, uint8 TileID) >Func)
 	{
-		// -1 means no cells are collapsed
-		// 0 means there are no such tiles in the second layer
+		static int ret{ 0 };
+		ret = 0;
 
-		int ret = -1;
+		FCell* CurrentCell = Cell;
+		FIntPoint StartPosition = { CurrentCell->GetGridPos().X - Layer, CurrentCell->GetGridPos().Y - Layer};
 
 		// before moving to next cell, check if it exists
 		// jump to cell in position X - Layer, Y - Layer
-		// move right x Layer times
-		// move down x Layer times
-		// move left x Layer times
-		// move up x Layer times
-		// call std::function for each cell
-		// accumulate what std::function returns
-		// return accumulated value
+		if (WFCUtils::IsPositionWithinBounds(&StartPosition, Grid))
+		{
+			CurrentCell = &Grid->GetCells()[ StartPosition.X ][ StartPosition.Y ];
+		}
 
-		return -1;
+		// repeat sequence 4 times
+		// move right x Layer * 2 times
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < (Layer * 2); j++)
+			{
+				FIntPoint NextPosition;
+				switch (i)
+				{
+				case 0: NextPosition = { CurrentCell->GetGridPos().X + 1, CurrentCell->GetGridPos().Y }; break;
+				case 1: NextPosition = { CurrentCell->GetGridPos().X, CurrentCell->GetGridPos().Y - 1 }; break;
+				case 2: NextPosition = { CurrentCell->GetGridPos().X - 1, CurrentCell->GetGridPos().Y }; break;
+				case 3: NextPosition = { CurrentCell->GetGridPos().X, CurrentCell->GetGridPos().Y + 1 }; break;		
+				}
+				
+				if (WFCUtils::IsPositionWithinBounds(&NextPosition, Grid))
+				{
+					// call std::function for each cell
+					// accumulate what std::function returns and return it
+					CurrentCell = &Grid->GetCells()[ NextPosition.X ][ NextPosition.Y ];
+					ret += Func(CurrentCell, TileID);
+				}
+			}
+		}
+		return ret;
 	}
 }
 
 namespace WFCWeightUtils
 {
-	int32 gAccumulator{ 0 };
-	
-
-	void AddRandomWeight(float& weight)
+	void AddRandomWeight(float& weight, float min, float max)
 	{
-		float MaxWeight = 0.4f;
-		float MinWeight = -0.4f;
-
-		weight += FMath::FRandRange(MinWeight, MaxWeight);
+		weight += FMath::FRandRange(min, max);
 	}
 
-	int GetHighestWeightID(const TArray<float>& weights)
+	int GetHighestWeightID(const TArray< float >& weights)
 	{
 		float highest = -1.0f;
 		int ret = -1;
 
 		for (int i = 0; i < weights.Num(); i++)
 		{
-			if (weights[ i ] == -10.0f) continue;
+			if (weights[ i ] == AWFCManager::EntropyThreshold) continue;
 			else if (weights[ i ] > highest)
 			{
 				highest = weights[ i ];
@@ -195,19 +198,12 @@ namespace WFCWeightUtils
 		return ret;
 	}
 
-	auto FindTiles = [&](FCell* Cell, uint8 TileID) -> int
+	auto FindTiles = [](FCell* Cell, uint8 TileID) -> int
 	{
-			if (Cell->IsCollapsed()) return 0;
-			else if (Cell->WaveFunction.Num() == 0) return -1;
-			else if (Cell->WaveFunction[ 0 ] == TileID)
-			{
-				// this might be a local variable in Sweep Layer function
-				gAccumulator++;
-				return 0;
-			}
-			return -1;
+		if (!Cell->IsCollapsed() || !Cell->WaveFunction.Num()) return 0;
+		else if (Cell->WaveFunction[ 0 ] == TileID) return 1;
+		return 0;
 	};
-
 
 	float AccumulateWeights(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int Layer)
 	{
@@ -216,8 +212,8 @@ namespace WFCWeightUtils
 		// i = any other possible tile
 		for (int i = 1; i < Cell->WaveFunction.Num(); i++)
 		{
-			const std::unordered_map<ETileType, float>& WeightMap = WFCData::FirstLayerWeights[ TileID ];
-			int TilesFound = WFCAlgorithm::SweepLayer(Grid, Cell, i, Layer, FindTiles);
+			const std::unordered_map< ETileType, float >&WeightMap = WFCData::FirstLayerWeights[ TileID ];
+			int TilesFound = WFCAlgorithm::SweepLayer(Grid, Cell, Cell->WaveFunction[ i ], Layer, FindTiles);
 
 			auto It = WeightMap.find(static_cast< ETileType >(i));
 			float Add = TilesFound * It->second;
@@ -236,32 +232,79 @@ namespace WFCWeightRules
 	// IN current Path cell, OUT next Path cell (to be collapsed)
 	FCell* PathRule(FCell* CurrentCell, TArray< FCell* >& NextCells)
 	{
-		if (NextCells.Num() == 0) return nullptr;
+		if (!NextCells.Num()) return nullptr;
+		int winnerCell{ 0 };
 
-		TArray <float> Weights;
+		TArray< float >Weights;
 		Weights.Init(1.0f, NextCells.Num());
+
 
 		for (int i = 0; i < Weights.Num(); i++)
 		{
-			/*if (WFCWeightUtils::bAgainstOdds)
-				Weights[ i ] += WFCData::PathDistanceWeights[ Weights.Num() - 1 - i ];
-			else*/
-				Weights[ i ] += WFCData::PathDistanceWeights[ i ];
+			Weights[ i ] += WFCData::PathDistanceWeights[ i ];
 		}
 
 		for (float& Weight : Weights)
 		{
-			WFCWeightUtils::AddRandomWeight(Weight);
+			WFCWeightUtils::AddRandomWeight(Weight, -0.3f, 0.3f);
 		}
 
-		int winner = WFCWeightUtils::GetHighestWeightID(Weights);
+		TArray< int >NextCellsIndices;
+		for (int i = 0; i < NextCells.Num(); i++)
+		{
+			NextCellsIndices.Add(i);
+		}
 
-		if (winner == -1) return nullptr;
+		NextCellsIndices.Sort([ &Weights ](int A, int B) {
+			return Weights[ A ] > Weights[ B ];
+			});
+
+		TArray< FCell* >SortedCells;
+		for (int i = 0; i < NextCells.Num(); i++)
+		{
+			SortedCells.Add(NextCells[NextCellsIndices[ i ]]);
+		}
+		NextCells = SortedCells;
+
+		TArray< FCell* > Cells;
+		ProceduralPath::GetSurroundingCells(NextCells[ 0 ], Cells);
+
+		if (Cells.Num() < 2 && NextCells.Num() > 1) return NextCells[ 1 ];
+
+		return NextCells[ 0 ];
+
+
+		//int PathsAround = WFCAlgorithm::SweepLayer
+		//(
+		//	CurrentCell->Grid->GetGrid(), 
+		//	NextCells[ 0 ], // Highest weight cell
+		//	static_cast< uint8 >(ETileType::Path),
+		//	2, 
+		//	WFCWeightUtils::FindTiles
+		//);
+
+		//if (PathsAround > 0 && NextCells.Num() > 1)
+		//{
+		//	PathsAround = WFCAlgorithm::SweepLayer
+		//	(
+		//		CurrentCell->Grid->GetGrid(),
+		//		NextCells[ 1 ], // Second highest weight cell
+		//		static_cast< uint8 >(ETileType::Path),
+		//		2,
+		//		WFCWeightUtils::FindTiles
+		//	);
+
+		//	if (PathsAround > 1 && NextCells.Num() > 2) return NextCells[ 2 ];
+		//	else return NextCells[ 1 ];			
+		//}
+		//else
+		//{
+		//	return NextCells[ 0 ];
+		//}
 		// 1. Calculate distance for each cell from the target and sort it (Nearest to Farthest) 3 cells in total
 		// 2. Deduct weight to each cell based on the distance (-0.2f, -0.5f, -0.8f).
 		// 3. Add a random weight to each cell
 		// 4. Return the cell with the highest weight
-		return NextCells[ winner ];
 	}
 
 	// for Other tiles:

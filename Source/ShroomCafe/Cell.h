@@ -30,35 +30,8 @@ public:
 	void SetWeight(uint8 TileID, float Weight);
 	bool IsCollapsed() const { return bIsCollapsed; }
 	float GetWeight(uint8 TileID) const { return WFWeights[ TileID ]; }
+	bool IsCell(uint8 TileID) const;
+
+	int GetEntropy() const;
 };
 
-//UCLASS()
-//class SHROOMCAFE_API ACell : public AActor
-//{
-//	GENERATED_BODY()
-//	
-//public:	
-//	// Sets default values for this actor's properties
-//	ACell();
-//
-//	int32 CellID{ 0 };
-//	bool bIsCollapsed{ false };
-//
-//	FVector2D WorldPos;
-//	TArray<int8> WaveFunction;
-//
-//	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
-//
-//	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
-//
-//protected:
-//	// Called when the game starts or when spawned
-//	virtual void BeginPlay() override;
-//
-//public:	
-//	// Called every frame
-//	virtual void Tick(float DeltaTime) override;
-//
-//
-//
-//};

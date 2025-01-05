@@ -5,28 +5,6 @@
 #include "WFCManager.h"
 
 
-//// Sets default values
-//ACell::ACell()
-//{
-// 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-//	PrimaryActorTick.bCanEverTick = true;
-//
-//}
-//
-//// Called when the game starts or when spawned
-//void ACell::BeginPlay()
-//{
-//	Super::BeginPlay();
-//	
-//}
-//
-//// Called every frame
-//void ACell::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//
-//}
-
 // return the position where mesh will be spawned
 FVector FCell::GetWorldPos() const 
 { 
@@ -35,7 +13,7 @@ FVector FCell::GetWorldPos() const
 	// 2D world position for the cell
 	FVector2D WorldPos = FVector2D(ParentPos.X, ParentPos.Y) + FVector2D((GridPos.X * Size) + (Size / 2), (GridPos.Y * Size) + (Size / 2));
 	// add height offset for 3D position
-	return FVector(WorldPos, ParentPos.Z + GroundOffset);
+	return FVector(WorldPos, 0);
 }
 
 void FCell::SetWeight(uint8 TileID, float Weight)
@@ -44,4 +22,21 @@ void FCell::SetWeight(uint8 TileID, float Weight)
 		WFWeights.Init(-10.0f, (int)ETileType::Max_Tiles);
 
 	WFWeights[ TileID ] = Weight;
+}
+
+bool FCell::IsCell(uint8 TileID) const
+{
+	if (!bIsCollapsed) return false;
+	return WaveFunction[ 0 ] == TileID;
+}
+
+int FCell::GetEntropy() const
+{
+	int Entropy = 0;
+	for (int i = 0; i < WFWeights.Num(); i++)
+	{
+		if (WFWeights[ i ] != -10.0f)
+			Entropy++;
+	}
+	return Entropy;
 }

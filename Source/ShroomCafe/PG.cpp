@@ -2,6 +2,7 @@
 #include "WFCManager.h"
 #include "WFC.h"
 #include "WFCUtils.h"
+#include  "WFC.h"
 
 
 namespace ProceduralPath
@@ -15,13 +16,14 @@ namespace ProceduralPath
 
 		TArray< FCell* > NextCells;
 
+		Start->SetWeight(static_cast<int>(ETileType::Path), 100.0f);
 		WFCAlgorithm::CollapseCell(Start);
 
 		while (!bTargetReached)
 		{
 			GetSurroundingCells(CurrentCell, NextCells);
 			// sort by distance to target
-			WFCUtils::SortByDistance(End, NextCells);
+			WFCUtils::SortCellsByDistance(End, NextCells);
 			// apply path rule to get next cell
 			FCell* NextCell = WFCWeightRules::PathRule(CurrentCell, NextCells);
 
@@ -30,8 +32,6 @@ namespace ProceduralPath
 				UE_LOG(LogTemp, Warning, TEXT("Path Generation Failed!"));
 				return;
 			}
-
-			//WFCWeightUtils::bAgainstOdds = NextCell != NextCells[ 0 ];
 
 			// set weight very large to make sure it collapses
 			NextCell->SetWeight(static_cast< int >(ETileType::Path), 100.0f);
@@ -97,10 +97,10 @@ namespace ProceduralWorld
 			for (FCell& Cell : Row)
 			{
 				if (!Cell.bIsCollapsed)
-				{
-					if (Cell.WaveFunction.Num() < LowestEntropy)
+				{			
+					if (Cell.GetEntropy() <= LowestEntropy)
 					{
-						LowestEntropy = Cell.WaveFunction.Num();
+						LowestEntropy = Cell.GetEntropy();
 						LowestEntropyCell = &Cell;
 					}
 				}
@@ -126,24 +126,29 @@ namespace ProceduralWorld
 
 			for (uint8 TileID : Cell->WaveFunction)
 			{
+				auto It = WFCData::TileRarity.find(static_cast<ETileType>(TileID));
+				float CurrentWeight = Cell->GetWeight(TileID) * It->second;
+
 				switch (TileID)
 				{
-				case static_cast<int>(ETileType::Tree):
-					Cell->SetWeight(TileID, WFCWeightRules::TreeRule(Cell));
+				case static_cast< int >(ETileType::Tree):
+					Cell->SetWeight(TileID, WFCWeightRules::TreeRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
 					break;
 
-				case static_cast<int>(ETileType::Bush):
-					Cell->SetWeight(TileID, WFCWeightRules::BushRule(Cell));
+				case static_cast< int >(ETileType::Bush):
+					Cell->SetWeight(TileID, WFCWeightRules::BushRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
 					break;
 
-				case static_cast<uint8>(ETileType::Grass):
-					Cell->SetWeight(TileID, WFCWeightRules::GrassRule(Cell));
+				case static_cast< uint8 >(ETileType::Grass):
+					Cell->SetWeight(TileID, WFCWeightRules::GrassRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
 					break;
 
 				default:
+					UE_LOG(LogTemp, Warning, TEXT("Invalid Tile ID"));
 					break;
 				}
 			}
+
 			WFCAlgorithm::CollapseCell(Cell);
 			WFCAlgorithm::PropagateConstraints(Cell);
 		}

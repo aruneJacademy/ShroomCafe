@@ -4,8 +4,7 @@
 #include "WFCUtils.h"
 #include <Kismet/GameplayStatics.h>
 #include <Engine/StaticMeshActor.h>
-#include "Tile.h"
-#include "Cell.h"
+#include "WFCManager.h"
 
 WFCUtils::WFCUtils()
 {
@@ -58,13 +57,13 @@ ATile* WFCUtils::SpawnTile(UWorld* World, uint8 TileID)
 {
 	FActorSpawnParameters SpawnParams;
 
-	ATile* NewTile = World->SpawnActor<ATile>(ATile::StaticClass());
+	ATile* NewTile = World->SpawnActor< ATile >(ATile::StaticClass());
 
 	return NewTile;
 }
 
 
-void WFCUtils::SortByDistance(FCell* Target, TArray< FCell* >& Cells)
+void WFCUtils::SortCellsByDistance(FCell* Target, TArray< FCell* >& Cells)
 {
 	TArray < float > Distances;
 
@@ -91,15 +90,18 @@ void WFCUtils::SortByDistance(FCell* Target, TArray< FCell* >& Cells)
 		return Distances[ A ] < Distances[ B ];
 		});
 
-	// Reorder the Cells and Distances arrays based on the sorted indices
-	TArray< FCell* > SortedCells;
-	//TArray<float> SortedDistances;
+	// Reorder the Cells array based on the sorted indices
+	TArray< FCell* >SortedCells;
 
 	for (int i = 0; i < SortedIndices.Num(); ++i)
 	{
-		SortedCells.Add(Cells[SortedIndices[ i ]]);
-		//SortedDistances.Add(Distances[SortedIndices[i]]);
+		SortedCells.Add(Cells[ SortedIndices[ i ] ]);
 	}
 
 	Cells = SortedCells;
+}
+
+bool WFCUtils::IsPositionWithinBounds(FIntPoint* Pos, AWFCGrid* Grid)
+{
+	return (Pos->X >= 0 && Pos->Y >= 0 && Pos->X < Grid->GetGridWidth() && Pos->Y < Grid->GetGridHeight());
 }

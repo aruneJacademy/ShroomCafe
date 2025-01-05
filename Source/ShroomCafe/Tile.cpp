@@ -2,6 +2,7 @@
 
 
 #include "Tile.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ATile::ATile()
@@ -14,25 +15,17 @@ ATile::ATile()
     // Add a Static Mesh Component
     Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     Mesh->SetupAttachment(RootComponent);
-
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Script/Engine.StaticMesh'/Game/Catcafe/meshes/cake/SM_sweets_strawberry_cake.SM_sweets_strawberry_cake'"));
-	if (MeshAsset.Succeeded())
-	{
-		//Mesh->SetStaticMesh(MeshAsset.Object);
-	}
 }
 
 // Called when the game starts or when spawned
 void ATile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

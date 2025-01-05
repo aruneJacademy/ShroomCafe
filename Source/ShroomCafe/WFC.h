@@ -21,7 +21,7 @@ namespace WFCAlgorithm
 		FCell* Cell, 
 		uint8 TileID, 
 		int32 Layer,
-		std::function< void(FCell* Cell, uint8 TileID) >Func
+		std::function< int(FCell* Cell, uint8 TileID) >Func
 	);
 
 	
@@ -45,7 +45,7 @@ namespace WFCWeightRules
 namespace WFCWeightUtils
 {
 	bool bAgainstOdds{ false };
-	void AddRandomWeight(float& weight);
+	void AddRandomWeight(float& weight, float min, float max);
 	int GetHighestWeightID(const TArray< float >& weights);
 
 	float AccumulateWeights(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int Layer);
@@ -56,6 +56,13 @@ namespace WFCData
 	inline TArray< float >PathDistanceWeights
 	{
 		-0.2f, -0.4f, -0.6f, -0.2f
+	};
+
+	inline std::unordered_map<ETileType, float> TileRarity
+	{
+		{ ETileType::Tree, 0.8f },
+		{ ETileType::Grass, 1.0f },
+		{ ETileType::Bush, 0.5f },
 	};
 }
 

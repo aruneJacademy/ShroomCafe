@@ -7,6 +7,7 @@
 
 class ATile;
 struct FCell;
+class AWFCGrid;
 /**
  * 
  */
@@ -19,5 +20,6 @@ public:
 	static UStaticMeshComponent* GetTileMesh(FString TargetName, UWorld* World);
 	static ATile* SpawnTile(UWorld* World, uint8 TileID);
 
-	static void SortByDistance(FCell* Target, TArray< FCell* >& Cells);
+	static void SortCellsByDistance(FCell* Target, TArray< FCell* >& Cells);
+	static bool IsPositionWithinBounds(FIntPoint* Pos, AWFCGrid* Grid);
 };
