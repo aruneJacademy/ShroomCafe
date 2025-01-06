@@ -22,7 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	FString MeshString;
 
-	void SetMeshString(FString Mesh) { MeshString = Mesh; }
+	TArray< FString >MeshStrings;
+
+	void SetMeshString(FString Mesh) { MeshStrings.Add(Mesh); }
 	bool IsAllowedNeighbor(uint8 NeighborID) const { return AllowedNeighbors.Contains(NeighborID); }
 
 	FTileData() {}

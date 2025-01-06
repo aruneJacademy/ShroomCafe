@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "WFC.h"
 #include "PG.h"
+#include "TileSpawner.h"
 
 const float AWFCManager::EntropyThreshold{ -10.0f };
 
@@ -22,13 +23,14 @@ AWFCManager::AWFCManager()
 	// construction helpers are meant to be called in the constructor only. Other places need to use Loaders and Finders
 	//static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Script/Engine.Blueprint'/Game/WFC/TileMeshUnknown.TileMeshUnknown'"));
 	WFCAlgorithm::GenerateWaveFunction(Tiles);
+	
 }
 
 // Called when the game starts or when spawned
 void AWFCManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	TileSpawner = GetWorld()->SpawnActor< ATileSpawner >(ATileSpawner::StaticClass());
 }
 
 // Called every frame
@@ -53,12 +55,10 @@ void AWFCManager::DrawDebugGrid()
 		for (int Column = 0; Column < GridHeight; ++Column)
 		{
 			FCell& Cell = Grid->GetCells()[ Row ][ Column ];
-			DrawDebugBox(GetWorld(), Cell.GetWorldPos(), FVector(Grid->GetCellSize() / 2, Grid->GetCellSize() / 2, 1), FColor::Blue, false, -1.0f, 0, 2.0f);
+			//DrawDebugBox(GetWorld(), Cell.GetWorldPos(), FVector(Grid->GetCellSize() / 2, Grid->GetCellSize() / 2, 1), FColor::Blue, false, -1.0f, 0, 2.0f);
 		}
 	}
 }
-
-
 
 void AWFCManager::InitializeGrid()
 {
@@ -86,7 +86,7 @@ void AWFCManager::InitializeGrid()
 			Cell.Grid = this;
 			Cell.GroundOffset = VerticalOffset;
 			Cell.GridPos = { Row, Column };
-			Cell.Size = Grid->GetCellSize();
+			Cell.Size = TileSize;
 
 			FVector ParentPos = GetActorLocation();
 
@@ -96,7 +96,7 @@ void AWFCManager::InitializeGrid()
 				Cell.WaveFunction.Add(Tile.TileID);
 			}
 
-			Cell.WFWeights.Init(EntropyThreshold, Cell.WaveFunction.Num());
+			Cell.WFWeights.Init(1.0f, Cell.WaveFunction.Num());
 		}
 	}
 
@@ -105,26 +105,18 @@ void AWFCManager::InitializeGrid()
 
 void AWFCManager::GenerateGrid()
 {
-	ProceduralPath::Generate
-	(
-		Grid, 
-		&Grid->GetCells()[ 0 ][ 0 ], // start of path
-		&Grid->GetCells()[ GridWidth - 1 ][ GridHeight - 10 ] // end of path
-	);
+	for (auto Path : WFCData::PathCoords)
+	{
+		FIntPoint& PathStart = Path[ 0 ];
+		FIntPoint& PathEnd = Path[ 1 ];
 
-	ProceduralPath::Generate
-	(
-		Grid,
-		&Grid->GetCells()[ 0 ][ GridHeight - 1 ], // start of path
-		&Grid->GetCells()[ GridWidth - 1 ][ 0 ] // end of path
-	);
-
-	ProceduralPath::Generate
-	(
-		Grid,
-		&Grid->GetCells()[ GridWidth - 1 ][ 0 ], // start of path
-		&Grid->GetCells()[ 0 ][ GridHeight - 1 ] // end of path
-	);
+		ProceduralPath::Generate
+		(
+			Grid,
+			&Grid->GetCells()[ PathStart.X ][ PathStart.Y ], // start of path
+			&Grid->GetCells()[ PathEnd.X ][ PathEnd.Y ] // end of path
+		);
+	}
 
 	ProceduralWorld::Generate(Grid);
 }
@@ -139,37 +131,31 @@ void AWFCManager::SpawnGrid()
 
 			// Tile 0 == collapsed WF
 			uint8 ChosenTile = Cell.WaveFunction[ 0 ];
-			ATile* Tile = WFCUtils::SpawnTile(GetWorld(), ChosenTile);
-			
-			if (Tile)
+
+			// don't spawn any tiles in middle perimeter
+			if (Cell.GridPos.X >= MiddlePerimeterBottomLeft.X && Cell.GridPos.X <= MiddlePerimeterTopRight.X &&
+				Cell.GridPos.Y >= MiddlePerimeterBottomLeft.Y && Cell.GridPos.Y <= MiddlePerimeterTopRight.Y)
 			{
-				Tile->SetActorLocation(Cell.GetWorldPos());
-				UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, GetMeshString(ChosenTile));
-			
-				if (MeshAsset)
-				{
-					UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
-					MeshComp->SetStaticMesh(MeshAsset);
+				continue;
+			}
 
-					FVector NewScale(1.5f, 1.5f, 1.5f);
-					MeshComp->SetWorldScale3D(NewScale);
-					MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-				}
+			switch (ChosenTile)
+			{
+			case static_cast< uint8 >(ETileType::Tree):
+				TileSpawner->SpawnTree(this, &Cell, ChosenTile);
+				break;
 
-				// Add a capsule around the tree trunk instead of mesh collisions
-				if (ChosenTile == static_cast< uint8 >(ETileType::Tree))
-				{
-					UCapsuleComponent* CapsuleComponent = NewObject<UCapsuleComponent>(this, UCapsuleComponent::StaticClass());
-					CapsuleComponent->SetupAttachment(Tile->GetRootComponent());  // Attach to the actor's root component or another component
-					CapsuleComponent->SetCapsuleHalfHeight(200.0f);  // Set the height of the capsule
-					CapsuleComponent->SetCapsuleRadius(70.0f);  // Set the radius of the capsule
-					//CapsuleComponent->SetHiddenInGame(false);
-					//CapsuleComponent->SetVisibility(true);
-					CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-					CapsuleComponent->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);  // Treats the capsule as a dynamic object
-					CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Block);  // Block all interactions
-					CapsuleComponent->RegisterComponent();  // Register the component to make it functional
-				}
+			case static_cast< uint8 >(ETileType::Grass):
+				TileSpawner->SpawnGrass(this, &Cell, ChosenTile);
+				break;
+
+			case static_cast< uint8 >(ETileType::Bush):
+				TileSpawner->SpawnBush(this, &Cell, ChosenTile);
+				break;
+
+			case static_cast< uint8 >(ETileType::Path):
+				TileSpawner->SpawnBush(this, &Cell, ChosenTile);
+
 			}
 		}
 	}
@@ -197,7 +183,17 @@ const TCHAR* AWFCManager::GetMeshString(uint8 TileID)
 	{
 		if (Tile.TileID == TileID)
 		{
-			return *Tile.MeshString;
+			if (!Tile.MeshStrings.Num())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No mesh strings found for tile %d"), TileID);
+				return nullptr;
+			}
+			if (Tile.MeshStrings.Num() == 1)
+			{
+				return *Tile.MeshStrings[ 0 ];
+			}
+			int rand = FMath::RandRange(0, Tile.MeshStrings.Num() - 1);
+			return *Tile.MeshStrings[ rand ];
 		}
 	}
 	return nullptr;

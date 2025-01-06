@@ -33,17 +33,17 @@ namespace ProceduralPath
 				return;
 			}
 
+			if (NextCell == End)
+			{
+				bTargetReached = true;
+				break;
+			}
 			// set weight very large to make sure it collapses
 			NextCell->SetWeight(static_cast< int >(ETileType::Path), 100.0f);
 			WFCAlgorithm::CollapseCell(NextCell);
 
 			CurrentCell = NextCell;
 			NextCells.Empty();
-
-			if (CurrentCell == End)
-			{
-				bTargetReached = true;
-			}
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Path Generated!"));
@@ -126,6 +126,8 @@ namespace ProceduralWorld
 
 			for (uint8 TileID : Cell->WaveFunction)
 			{
+				if (Cell->GetWeight(TileID) == -10.0f) continue;
+
 				auto It = WFCData::TileRarity.find(static_cast<ETileType>(TileID));
 				float CurrentWeight = Cell->GetWeight(TileID) * It->second;
 

@@ -1,8 +1,10 @@
 #pragma once 
 
 #include "WFCManager.h"
+#include <unordered_map>
 #include "Math/Vector.h"
 #include <functional>
+
 
 
 class AWFCGrid;
@@ -40,6 +42,9 @@ namespace WFCWeightRules
 	float TreeRule(FCell* Cell);
 	float BushRule(FCell* Cell);
 	float GrassRule(FCell* Cell);
+	float PineRule(FCell* Cell);
+	float FernRule(FCell* Cell);
+	float FlowerRule(FCell* Cell);
 }
 
 namespace WFCWeightUtils
@@ -63,6 +68,51 @@ namespace WFCData
 		{ ETileType::Tree, 0.8f },
 		{ ETileType::Grass, 1.0f },
 		{ ETileType::Bush, 0.5f },
+	};
+
+	inline TArray< FIntPoint > HutPositions
+	{
+		FIntPoint(24, 74), // Left
+		FIntPoint(74, 24), // Bottom
+		FIntPoint(124, 74), // Right
+		FIntPoint(74, 124), // Top
+	};
+
+	//TArray<std::unordered_map< ETileType, float >>SecondLayerWeights
+	inline TArray< TArray< FIntPoint > >PathCoords
+	{
+		{ FIntPoint(48, 74), HutPositions[ 0 ] }, //  Hut0
+		{ FIntPoint(74, 48), HutPositions[ 1 ] }, //  Hut2
+		{ FIntPoint(98, 74), HutPositions[ 2 ] }, //  Hut3
+		{ FIntPoint(74, 98), HutPositions[ 3 ] }, //  Hut4
+
+		{ FIntPoint(0, 30), HutPositions[ 0 ] }, // first corner BL
+		{ FIntPoint(0, 0), FIntPoint(49, 49) },
+		{ FIntPoint(30, 0), HutPositions[ 1 ] },
+
+		{ FIntPoint(120, 0), HutPositions[ 1 ] }, // second corner BR
+		{ FIntPoint(149, 0), FIntPoint(99, 49) },
+		{ FIntPoint(149, 30), HutPositions[ 2 ] },
+
+		{ FIntPoint(120, 149), HutPositions[ 3 ] }, // third corner TR
+		{ FIntPoint(149, 149), FIntPoint(99, 99) },
+		{ FIntPoint(149, 120), HutPositions[ 2 ] },
+
+		{ FIntPoint(30, 149), HutPositions[ 3 ] }, // fourth corner TL
+		{ FIntPoint(0, 149), FIntPoint(49, 99) },
+		{ FIntPoint(0, 120), HutPositions[ 0 ] },
+
+		{ FIntPoint(0, 30), FIntPoint(49, 49) },
+		{ FIntPoint(30, 0), FIntPoint(49, 49) },
+
+		{ FIntPoint(120, 0), FIntPoint(99, 49) },
+		{ FIntPoint(149, 30), FIntPoint(99, 49) },
+
+		{ FIntPoint(120, 149), FIntPoint(99, 99) },
+		{ FIntPoint(149, 120), FIntPoint(99, 99) },
+
+		{ FIntPoint(30, 149), FIntPoint(49, 99) },
+		{ FIntPoint(0, 120), FIntPoint(49, 99) },
 	};
 }
 

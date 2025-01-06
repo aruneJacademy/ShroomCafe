@@ -7,41 +7,18 @@
 namespace WFCData
 {
 	// Weight will be adjusted for each wave function element, based on these weights
+
 	TArray<std::unordered_map< ETileType, float >>FirstLayerWeights
-	{	
-		{}, // Unknown Tile = 0, 
-		{}, // Path Tile = 1
-
-		{	// Tree Tile = 2
-			{ ETileType::Path, 0.25f },
-			{ ETileType::Tree, 0.2f },
-			{ ETileType::Grass, 0.15f },
-			{ ETileType::Bush, 0.3f },
-		},
-		{	// Grass Tile = 3 
-			{ ETileType::Path, 0.25f },
-			{ ETileType::Tree, 0.2f },
-			{ ETileType::Grass, 0.05f },
-			{ ETileType::Bush, 0.3f },
-		},
-		{	// Bush Tile = 4
-			{ ETileType::Path, 0.25f },
-			{ ETileType::Tree, 0.3f },
-			{ ETileType::Grass, 0.3f },
-			{ ETileType::Bush, 0.1f },
-		}
-	};
-
-	TArray<std::unordered_map< ETileType, float >>SecondLayerWeights
 	{
 		{}, // Unknown Tile = 0, 
 		{}, // Path Tile = 1
 
 		{	// Tree Tile = 2 
-			{ ETileType::Path, 0.25f },
-			{ ETileType::Tree, 0.1f },
-			{ ETileType::Grass, 0.2f },
+			{ ETileType::Path, 0.3f },
+			{ ETileType::Tree, 0.2f },
+			{ ETileType::Grass, 0.15f },
 			{ ETileType::Bush, 0.3f },
+			
 		},
 		{	// Grass Tile = 3
 			{ ETileType::Path, 0.25f },
@@ -52,11 +29,72 @@ namespace WFCData
 		{	// Bush Tile = 4
 			{ ETileType::Path, 0.25f },
 			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.3f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Pine Tile = 5
+			{ ETileType::Path, 0.1f },
+			{ ETileType::Tree, 0.1f },
 			{ ETileType::Grass, 0.2f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Fern Tile = 6
+			{ ETileType::Path, 0.2f },
+			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.2f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Flower Tile = 7
+			{ ETileType::Path, 0.3f },
+			{ ETileType::Tree, 0.1f },
+			{ ETileType::Grass, 0.4f },
 			{ ETileType::Bush, 0.1f },
 		}
 	};
 
+	TArray<std::unordered_map< ETileType, float >>SecondLayerWeights
+	{	
+		{}, // Unknown Tile = 0, 
+		{}, // Path Tile = 1
+
+		{	// Tree Tile = 2
+			{ ETileType::Path, 0.3f },
+			{ ETileType::Tree, 0.2f },
+			{ ETileType::Grass, 0.2f },
+			{ ETileType::Bush, 0.3f },
+		},
+		{	// Grass Tile = 3 
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.2f },
+			{ ETileType::Grass, 0.1f },
+			{ ETileType::Bush, 0.3f },
+		},
+		{	// Bush Tile = 4
+			{ ETileType::Path, 0.25f },
+			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.2f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Pine Tile = 5
+			{ ETileType::Path, 0.1f },
+			{ ETileType::Tree, 0.1f },
+			{ ETileType::Grass, 0.1f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Fern Tile = 6
+			{ ETileType::Path, 0.2f },
+			{ ETileType::Tree, 0.3f },
+			{ ETileType::Grass, 0.3f },
+			{ ETileType::Bush, 0.1f },
+		},
+		{	// Flower Tile = 7
+			{ ETileType::Path, 0.3f },
+			{ ETileType::Tree, 0.1f },
+			{ ETileType::Grass, 0.4f },
+			{ ETileType::Bush, 0.1f },
+		}
+
+	};
 	
 
 	
@@ -114,19 +152,37 @@ namespace WFCAlgorithm
 		Tiles.Add(UnknownTile);
 
 		FTileData PathTile((int)ETileType::Path, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Path });
-		//PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
-		PathTile.SetMeshString(FString(""));
+		PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
+		//PathTile.SetMeshString(FString(""));
 		Tiles.Add(PathTile);
 
 		FTileData TreeTile((int)ETileType::Tree, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass });
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_01.SM_Common_Tree_01'"));
 		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_TREE_village_LOD0.SM_ENV_TREE_village_LOD0'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_02.SM_Common_Tree_02'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_03.SM_Common_Tree_03'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_04.SM_Common_Tree_04'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_05.SM_Common_Tree_05'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_06.SM_Common_Tree_06'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_07.SM_Common_Tree_07'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_08.SM_Common_Tree_08'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_09.SM_Common_Tree_09'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_10.SM_Common_Tree_10'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_11.SM_Common_Tree_11'"));
 		Tiles.Add(TreeTile);
 
 		FTileData GrassTile((int)ETileType::Grass, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
 		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_grass_village.SM_ENV_PLANT_grass_village'"));
+		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/StylizedProvencal/Meshes/SM_Flower_01_c.SM_Flower_01_c'"));
+		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/StylizedProvencal/Meshes/SM_Flower_02_a.SM_Flower_02_a'"));
+		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/StylizedProvencal/Meshes/SM_Flower_03_a.SM_Flower_03_a'"));
+		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/StylizedProvencal/Meshes/SM_Flower_03_b.SM_Flower_03_b'"));
+		GrassTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Catcafe/meshes/PLANTS/SM_redflower.SM_redflower'"));
 		Tiles.Add(GrassTile);
 
 		FTileData BushTile((int)ETileType::Bush, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
+		BushTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Bush.SM_Bush'"));
+		BushTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Catcafe/meshes/PLANTS/bush/SM_bush.SM_bush'"));
 		BushTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_PLANT_leaf_village.SM_ENV_PLANT_leaf_village'"));
 		Tiles.Add(BushTile);
 	}
@@ -188,6 +244,8 @@ namespace WFCWeightUtils
 
 		for (int i = 0; i < weights.Num(); i++)
 		{
+			if (weights[ i ] == -10.0f) continue;
+			
 			if (weights[ i ] == AWFCManager::EntropyThreshold) continue;
 			else if (weights[ i ] > highest)
 			{
@@ -246,7 +304,7 @@ namespace WFCWeightRules
 
 		for (float& Weight : Weights)
 		{
-			WFCWeightUtils::AddRandomWeight(Weight, -0.3f, 0.3f);
+			WFCWeightUtils::AddRandomWeight(Weight, -0.2f, 0.2f);
 		}
 
 		TArray< int >NextCellsIndices;
@@ -269,10 +327,12 @@ namespace WFCWeightRules
 		TArray< FCell* > Cells;
 		ProceduralPath::GetSurroundingCells(NextCells[ 0 ], Cells);
 
-		if (Cells.Num() < 2 && NextCells.Num() > 1) return NextCells[ 1 ];
+		if (NextCells.Num() == 1 || Cells.Num() >= 2) return NextCells[ 0 ];
+		else if (Cells.Num() < 2 && NextCells.Num() > 1) return NextCells[ 1 ];
+		else if (Cells.Num() < 2 && NextCells.Num() > 2) return NextCells[ 2 ];
+		else return nullptr;
 
-		return NextCells[ 0 ];
-
+	
 
 		//int PathsAround = WFCAlgorithm::SweepLayer
 		//(
@@ -313,14 +373,6 @@ namespace WFCWeightRules
 	{
 		float ret = StartWeight;
 		ret -= FairBias;
-		// --fair bias 0.2f
-		// Trees in 1st layer? -1.0f 
-		// Trees in 2nd layer? --0.3f per tree
-		// Any Path in 1st layer? -1.0f
-		// Any Path in 2nd layer? -0.5f
-		// Bush in 1st layer? ++0.2f per bush
-		// Bush in 2nd layer? ++0.1f per bush
-		// Add random weight
 
 		float AmbientWeight = WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Tree, 1);
 		AmbientWeight += WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Tree, 2);
@@ -333,10 +385,7 @@ namespace WFCWeightRules
 	{
 		float ret = StartWeight;
 		ret -= FairBias;
-		// --fair bias 0.2f
-		// grass in 1st layer? ++0.2f per grass
-		// grass in 2nd layer? ++0.1f per grass
-		// Add random weight
+		
 		float AmbientWeight = WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Grass, 1);
 		AmbientWeight += WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Grass, 2);
 
@@ -348,12 +397,7 @@ namespace WFCWeightRules
 	{
 		float ret = StartWeight;
 		ret -= FairBias;
-		// --fair bias 0.2f
-		// Any Paths in 1st layer? -1.0f
-		// Trees in 1st layer? ++0.2f per tree
-		// Trees in 2nd layer? ++0.1f per tree
-		// Any Bush around ? --0.1f per bush
-		// Add random weight
+	
 		float AmbientWeight = WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Bush, 1);
 		AmbientWeight += WFCWeightUtils::AccumulateWeights(Cell->Grid->GetGrid(), Cell, (uint8)ETileType::Bush, 2);
 

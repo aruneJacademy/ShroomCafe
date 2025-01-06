@@ -34,7 +34,7 @@ public:
 	TArray< FTileData >WaveFunction;
 
 protected:
-	int32 CellSize = 300;
+	//int32 CellSize = 300;
 	TArray<TArray< FCell >>Cells;
 	int32 GridWidth;
 	int32 GridHeight;
@@ -45,7 +45,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	TArray < TArray<FCell> >& GetCells() { return Cells; }
-	int32 GetCellSize() const { return CellSize; }
 
 	FCell& GetCellAtPosition(FIntPoint& pos);
 
