@@ -14,6 +14,12 @@ ATileSpawner::ATileSpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ConstructorHelpers::FClassFinder<AActor> BPActor(TEXT("/Script/Engine.Blueprint'/Game/WFC/BP_Rock.BP_Rock_C'"));
+	if (BPActor.Succeeded())
+	{
+		BPClassRockTile = BPActor.Class;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -60,21 +66,37 @@ void ATileSpawner::SpawnTree(AWFCManager* Manager, FCell* Cell, uint8 TileID)
 		Tile->SetActorLocation(Cell->GetWorldPos());
 		const TCHAR* MeshString = Manager->GetMeshString(TileID);
 		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, MeshString);
+		float Scale = FMath::RandRange(0.8f, 1.5f);
 
 		if (MeshAsset)
 		{
 			UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
 			MeshComp->SetStaticMesh(MeshAsset);
 
-			FVector NewScale(1.5f, 1.5f, 1.5f);
+			FVector NewScale(Scale, Scale, Scale);
 			MeshComp->SetWorldScale3D(NewScale);
 			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 
 		UCapsuleComponent* CapsuleComponent = NewObject<UCapsuleComponent>(this, UCapsuleComponent::StaticClass());
 		CapsuleComponent->SetupAttachment(Tile->GetRootComponent());  // Attach to the actor's root component or another component
-		CapsuleComponent->SetCapsuleHalfHeight(200.0f);  // Set the height of the capsule
-		CapsuleComponent->SetCapsuleRadius(70.0f);  // Set the radius of the capsule
+		
+		if (Scale < 1.0f)
+		{
+			CapsuleComponent->SetCapsuleHalfHeight(100.0f);  // Set the height of the capsule
+			CapsuleComponent->SetCapsuleRadius(50.0f);  // Set the radius of the capsule
+		}
+		else if (Scale < 1.3f)
+		{
+			CapsuleComponent->SetCapsuleHalfHeight(150.0f);  // Set the height of the capsule
+			CapsuleComponent->SetCapsuleRadius(60.0f);  // Set the radius of the capsule
+		}
+		else 
+		{
+			CapsuleComponent->SetCapsuleHalfHeight(200.0f);  // Set the height of the capsule
+			CapsuleComponent->SetCapsuleRadius(70.0f);  // Set the radius of the capsule }
+		}
+
 		//CapsuleComponent->SetHiddenInGame(false);
 		//CapsuleComponent->SetVisibility(true);
 		CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

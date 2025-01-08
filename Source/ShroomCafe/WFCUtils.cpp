@@ -5,6 +5,9 @@
 #include <Kismet/GameplayStatics.h>
 #include <Engine/StaticMeshActor.h>
 #include "WFCManager.h"
+#include "TileSpawner.h"
+
+//UClass* WFCUtils::BPClassRockTile{ nullptr };
 
 WFCUtils::WFCUtils()
 {
@@ -18,7 +21,6 @@ WFCUtils::~WFCUtils()
 
 UStaticMeshComponent* WFCUtils::GetTileMesh(FString TargetName, UWorld* World)
 {
-	//UWorld* World = GetWorld();
 	if (!World)
 	{
 		return nullptr;
@@ -55,10 +57,29 @@ UStaticMeshComponent* WFCUtils::GetTileMesh(FString TargetName, UWorld* World)
 
 ATile* WFCUtils::SpawnTile(UWorld* World, uint8 TileID)
 {
-	FActorSpawnParameters SpawnParams;
+	ATile* NewTile{ nullptr };
 
-	ATile* NewTile = World->SpawnActor< ATile >(ATile::StaticClass());
+	if (TileID == static_cast< uint8 >(ETileType::Path))
+	{
+		AWFCManager* Manager = Cast<AWFCManager>(UGameplayStatics::GetActorOfClass(World, AWFCManager::StaticClass()));
+		ATileSpawner* TileSpawner = Cast<ATileSpawner>(UGameplayStatics::GetActorOfClass(World, ATileSpawner::StaticClass()));
 
+		// Ensure the class is valid before spawning
+		if (TileSpawner->GetRockTile())
+		{
+			// Spawn the actor
+			AActor* SpawnedActor = World->SpawnActor<AActor>(TileSpawner->GetRockTile());
+			if (SpawnedActor)
+			{
+				NewTile = Cast<ATile>(SpawnedActor);
+			}
+		}
+	}
+	else
+	{
+		FActorSpawnParameters SpawnParams;
+		NewTile = World->SpawnActor< ATile >(ATile::StaticClass());
+	}
 	return NewTile;
 }
 

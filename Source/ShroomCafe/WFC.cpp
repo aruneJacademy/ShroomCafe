@@ -152,7 +152,8 @@ namespace WFCAlgorithm
 		Tiles.Add(UnknownTile);
 
 		FTileData PathTile((int)ETileType::Path, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Path });
-		PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
+		PathTile.SetMeshString(FString("/Script/Engine.Blueprint'/Game/WFC/BP_Rock.BP_Rock'"));
+		//PathTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/props/natural/SM_PROP_hay_01.SM_PROP_hay_01'"));
 		//PathTile.SetMeshString(FString(""));
 		Tiles.Add(PathTile);
 

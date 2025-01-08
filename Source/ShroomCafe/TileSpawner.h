@@ -17,10 +17,12 @@ class SHROOMCAFE_API ATileSpawner : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATileSpawner();
+	UClass* GetRockTile() { return BPClassRockTile; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	UClass* BPClassRockTile{ nullptr };
 
 public:	
 	// Called every frame

@@ -22,4 +22,8 @@ public:
 
 	static void SortCellsByDistance(FCell* Target, TArray< FCell* >& Cells);
 	static bool IsPositionWithinBounds(FIntPoint* Pos, AWFCGrid* Grid);
+
+protected:
+
+	
 };
