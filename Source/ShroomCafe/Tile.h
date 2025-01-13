@@ -54,4 +54,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray< UStaticMeshComponent* >Meshes;
 };

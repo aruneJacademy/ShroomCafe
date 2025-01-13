@@ -93,11 +93,7 @@ namespace WFCData
 			{ ETileType::Grass, 0.4f },
 			{ ETileType::Bush, 0.1f },
 		}
-
 	};
-	
-
-	
 }
 
 namespace WFCAlgorithm
@@ -146,6 +142,8 @@ namespace WFCAlgorithm
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Creating Tiles Aleliuja 2025"));
 
+		Tiles.Empty();
+
 		FTileData UnknownTile((int)ETileType::Unknown, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass, (int)ETileType::Tree, (int)ETileType::Path });
 		UnknownTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Nimikko_WesternTown/Assets/Props/SM_Crate_03.SM_Crate_03'"));
 		UnknownTile.TileID;
@@ -158,8 +156,9 @@ namespace WFCAlgorithm
 		Tiles.Add(PathTile);
 
 		FTileData TreeTile((int)ETileType::Tree, TArray<uint8>{ (int)ETileType::Bush, (int)ETileType::Grass });
-		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_01.SM_Common_Tree_01'"));
 		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_TREE_village_LOD0.SM_ENV_TREE_village_LOD0'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Fantastic_Village_Pack/meshes/environment/SM_ENV_TREE_village_LOD0.SM_ENV_TREE_village_LOD0'"));
+		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_01.SM_Common_Tree_01'"));
 		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_02.SM_Common_Tree_02'"));
 		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_03.SM_Common_Tree_03'"));
 		TreeTile.SetMeshString(FString("/Script/Engine.StaticMesh'/Game/Stylized_PBR_Nature/Foliage/Assets/SM_Common_Tree_04.SM_Common_Tree_04'"));

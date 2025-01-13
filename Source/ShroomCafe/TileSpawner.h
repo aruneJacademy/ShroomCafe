@@ -28,8 +28,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SpawnPath(AWFCManager* Manager, FCell* Cell, uint8 TileID);
-	void SpawnTree(AWFCManager* Manager, FCell* Cell, uint8 TileID);
-	void SpawnBush(AWFCManager* Manager, FCell* Cell, uint8 TileID);
-	void SpawnGrass(AWFCManager* Manager, FCell* Cell, uint8 TileID);
+	void SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID);
 };

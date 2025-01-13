@@ -7,6 +7,7 @@
 #include "Tile.h"
 #include "WFCManager.h"
 #include "WFCUtils.h"
+#include "TileSpawnRule.h"
 
 // Sets default values
 ATileSpawner::ATileSpawner()
@@ -36,116 +37,17 @@ void ATileSpawner::Tick(float DeltaTime)
 
 }
 
-void ATileSpawner::SpawnPath(AWFCManager* Manager, FCell* Cell, uint8 TileID)
+void ATileSpawner::SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID)
 {
 	ATile* Tile = WFCUtils::SpawnTile(Manager->GetWorld(), TileID);
+
+	TileSpawnRule SpawnRule;
 
 	if (Tile)
 	{
 		Tile->SetActorLocation(Cell->GetWorldPos());
-		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, Manager->GetMeshString(TileID));
-
-		if (MeshAsset)
-		{
-			UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
-			MeshComp->SetStaticMesh(MeshAsset);
-
-			FVector NewScale(1.5f, 1.5f, 1.5f);
-			MeshComp->SetWorldScale3D(NewScale);
-			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-}
-
-void ATileSpawner::SpawnTree(AWFCManager* Manager, FCell* Cell, uint8 TileID)
-{
-	ATile* Tile = WFCUtils::SpawnTile(Manager->GetWorld(), TileID);
-
-	if (Tile)
-	{
-		Tile->SetActorLocation(Cell->GetWorldPos());
-		const TCHAR* MeshString = Manager->GetMeshString(TileID);
-		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, MeshString);
-		float Scale = FMath::RandRange(0.8f, 1.5f);
-
-		if (MeshAsset)
-		{
-			UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
-			MeshComp->SetStaticMesh(MeshAsset);
-
-			FVector NewScale(Scale, Scale, Scale);
-			MeshComp->SetWorldScale3D(NewScale);
-			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-
-		UCapsuleComponent* CapsuleComponent = NewObject<UCapsuleComponent>(this, UCapsuleComponent::StaticClass());
-		CapsuleComponent->SetupAttachment(Tile->GetRootComponent());  // Attach to the actor's root component or another component
-		
-		if (Scale < 1.0f)
-		{
-			CapsuleComponent->SetCapsuleHalfHeight(100.0f);  // Set the height of the capsule
-			CapsuleComponent->SetCapsuleRadius(50.0f);  // Set the radius of the capsule
-		}
-		else if (Scale < 1.3f)
-		{
-			CapsuleComponent->SetCapsuleHalfHeight(150.0f);  // Set the height of the capsule
-			CapsuleComponent->SetCapsuleRadius(60.0f);  // Set the radius of the capsule
-		}
-		else 
-		{
-			CapsuleComponent->SetCapsuleHalfHeight(200.0f);  // Set the height of the capsule
-			CapsuleComponent->SetCapsuleRadius(70.0f);  // Set the radius of the capsule }
-		}
-
-		//CapsuleComponent->SetHiddenInGame(false);
-		//CapsuleComponent->SetVisibility(true);
-		CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		CapsuleComponent->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);  // Treats the capsule as a dynamic object
-		CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Block);  // Block all interactions
-		CapsuleComponent->RegisterComponent();  // Register the component to make it functional
-	}
-}
-
-
-void ATileSpawner::SpawnBush(AWFCManager* Manager, FCell* Cell, uint8 TileID)
-{
-	ATile* Tile = WFCUtils::SpawnTile(Manager->GetWorld(), TileID);
-
-	if (Tile)
-	{
-		Tile->SetActorLocation(Cell->GetWorldPos());
-		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, Manager->GetMeshString(TileID));
-
-		if (MeshAsset)
-		{
-			UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
-			MeshComp->SetStaticMesh(MeshAsset);
-
-			FVector NewScale(1.5f, 1.5f, 1.5f);
-			MeshComp->SetWorldScale3D(NewScale);
-			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-	}
-}
-
-void ATileSpawner::SpawnGrass(AWFCManager* Manager, FCell* Cell, uint8 TileID)
-{
-	ATile* Tile = WFCUtils::SpawnTile(Manager->GetWorld(), TileID);
-
-	if (Tile)
-	{
-		Tile->SetActorLocation(Cell->GetWorldPos());
-		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, Manager->GetMeshString(TileID));
-
-		if (MeshAsset)
-		{
-			UStaticMeshComponent* MeshComp = Tile->FindComponentByClass< UStaticMeshComponent >();
-			MeshComp->SetStaticMesh(MeshAsset);
-
-			FVector NewScale(1.5f, 1.5f, 1.5f);
-			MeshComp->SetWorldScale3D(NewScale);
-			MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
+		SpawnRule.SetMesh(Tile, &AWFCManager::Tiles[ TileID ], TileID);
+		SpawnRule.SetCapsule(Tile, TileID);
 	}
 }
 

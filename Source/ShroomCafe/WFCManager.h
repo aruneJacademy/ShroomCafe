@@ -17,7 +17,7 @@ class SHROOMCAFE_API AWFCManager : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWFCManager();
-	const TCHAR* GetMeshString(uint8 TileID);
+	static const TCHAR* GetMeshString(uint8 TileID);
 
 protected:
 	// Called when the game starts or when spawned
@@ -53,12 +53,12 @@ public:
 
 	int32 GetGridWidth() const { return GridWidth; }
 	int32 GetGridHeight() const { return GridHeight; }
-	TArray<FTileData >& GetTiles() { return Tiles; }
+	static TArray<FTileData >& GetTiles() { return Tiles; }
 	AWFCGrid* GetGrid() { return Grid; }
 	static const float EntropyThreshold;
 	
+	static TArray< FTileData > Tiles;
 protected:
-	TArray< FTileData > Tiles;
 	AWFCGrid* Grid{ nullptr };
 	ATileSpawner* TileSpawner{ nullptr };
 	bool bGenerated{ false };

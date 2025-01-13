@@ -13,6 +13,7 @@
 #include "TileSpawner.h"
 
 const float AWFCManager::EntropyThreshold{ -10.0f };
+TArray< FTileData > AWFCManager::Tiles{};
 
 // Sets default values
 AWFCManager::AWFCManager()
@@ -139,24 +140,7 @@ void AWFCManager::SpawnGrid()
 				continue;
 			}
 
-			switch (ChosenTile)
-			{
-			case static_cast< uint8 >(ETileType::Tree):
-				TileSpawner->SpawnTree(this, &Cell, ChosenTile);
-				break;
-
-			case static_cast< uint8 >(ETileType::Grass):
-				TileSpawner->SpawnGrass(this, &Cell, ChosenTile);
-				break;
-
-			case static_cast< uint8 >(ETileType::Bush):
-				TileSpawner->SpawnBush(this, &Cell, ChosenTile);
-				break;
-
-			case static_cast< uint8 >(ETileType::Path):
-				TileSpawner->SpawnBush(this, &Cell, ChosenTile);
-
-			}
+			TileSpawner->SpawnTile(this, &Cell, ChosenTile);
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Grid Spawned!"));

@@ -15,8 +15,8 @@ ATile::ATile()
 
     // Add a Static Mesh Component
     //InstancedMesh = CreateDefaultSubobject< UInstancedStaticMeshComponent>(TEXT("InstancedMesh"));
-    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-    Mesh->SetupAttachment(RootComponent);
+    //Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+   // Mesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

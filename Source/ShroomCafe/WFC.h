@@ -1,5 +1,6 @@
 #pragma once 
 
+
 #include "WFCManager.h"
 #include <unordered_map>
 #include "Math/Vector.h"
@@ -8,6 +9,10 @@
 
 
 class AWFCGrid;
+struct FCell;
+struct FTileData;
+enum class ETileType : uint8;
+
 
 namespace WFCAlgorithm
 {
@@ -62,6 +67,7 @@ namespace WFCData
 	{
 		-0.2f, -0.4f, -0.6f, -0.2f
 	};
+
 
 	inline std::unordered_map<ETileType, float> TileRarity
 	{
