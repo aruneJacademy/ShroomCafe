@@ -154,10 +154,10 @@ void AWFCManager::OnProceduralGeneration()
 	InitializeGrid();
 
 	// WFC Algorithm
-	GenerateGrid();
+	//GenerateGrid();
 
 	// Spawn collapsed tiles in the worldS
-	SpawnGrid();
+	//SpawnGrid();
 }
 
 
