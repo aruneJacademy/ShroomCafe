@@ -4,6 +4,7 @@
 #include "TileSpawnRule.h"
 #include "WFCManager.h"
 #include "Components/CapsuleComponent.h"
+#include "WFCUtils.h"
 
 
 
@@ -23,8 +24,8 @@ int TileSpawnRule::GetObjectCount(int TileID)
 	{
 	case static_cast< int >(ETileType::Path): return 1;
 	case static_cast< int >(ETileType::Tree): return 1;
-	case static_cast< int >(ETileType::Grass): return 1/*FMath::RandRange(2, 3)*/;
-	case static_cast< int >(ETileType::Bush): return 1/*FMath::RandRange(1, 2)*/;
+	case static_cast< int >(ETileType::Grass): return FMath::RandRange(3, 6);
+	case static_cast< int >(ETileType::Bush): return FMath::RandRange(3, 4);
 	default: return 0;
 	}
 }
@@ -34,9 +35,9 @@ float TileSpawnRule::GetScale(int TileID)
 	switch (TileID)
 	{
 	case static_cast< int >(ETileType::Path): return 1.0f;
-	case static_cast< int >(ETileType::Tree): return FMath::RandRange(0.8f, 1.5f);
-	case static_cast< int >(ETileType::Grass): return FMath::RandRange(0.7f, 1.3f);
-	case static_cast< int >(ETileType::Bush): return FMath::RandRange(0.6f, 1.2f);
+	case static_cast< int >(ETileType::Tree): return FMath::RandRange(0.7f, 1.5f);
+	case static_cast< int >(ETileType::Grass): return FMath::RandRange(0.5f, 1.1f);
+	case static_cast< int >(ETileType::Bush): return FMath::RandRange(0.3f, 1.7f);
 	default: return 1.0f;
 	}
 }
@@ -44,7 +45,7 @@ float TileSpawnRule::GetScale(int TileID)
 
 void TileSpawnRule::SetCapsule(ATile* Tile, int TileID)
 {
-	if (TileID != static_cast< int >(ETileType::Tree)) return;
+	if (!Tile || TileID != static_cast< int >(ETileType::Tree)) return;
 	
 	UCapsuleComponent* CapsuleComp = NewObject<UCapsuleComponent>(Tile, UCapsuleComponent::StaticClass());
 	CapsuleComp->AttachToComponent(Tile->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
@@ -82,6 +83,7 @@ void TileSpawnRule::SetCapsule(ATile* Tile, int TileID)
 
 void TileSpawnRule::SetMesh(ATile* Tile, FTileData* Data, int TileID)
 {
+	if (!Tile || !Data) return;
 	int ObjectCount = GetObjectCount(TileID);
 
 	for (int i = 0; i < ObjectCount; i++)
@@ -93,8 +95,14 @@ void TileSpawnRule::SetMesh(ATile* Tile, FTileData* Data, int TileID)
 		// Setup Mesh Asset
 		UStaticMesh* MeshAsset = LoadObject< UStaticMesh >(nullptr, AWFCManager::GetMeshString(TileID));
 		NewMeshComp->SetStaticMesh(MeshAsset);
-		NewMeshComp->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-		NewMeshComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+		NewMeshComp->SetRelativeRotation(FRotator(0.0f, FMath::FRandRange(0.f, 360.f), 0.0f));
+
+		// TODO: Make functions for random rotation and wrapper for position
+		if (TileID != static_cast<uint8>(ETileType::Tree) && TileID != static_cast<uint8>(ETileType::Path))
+		{
+			FVector2D planePos = WFCUtils::GetRandomPosition(AWFCManager::sTileSize, 6.28f / (i + 1));
+			NewMeshComp->SetRelativeLocation(FVector(planePos.X, planePos.Y, 0.0f));
+		}
 
 		// Setup scale and collision params
 		float Scale = GetScale(TileID);
@@ -106,3 +114,5 @@ void TileSpawnRule::SetMesh(ATile* Tile, FTileData* Data, int TileID)
 		Tile->Meshes.Add(NewMeshComp);
 	}
 }
+
+

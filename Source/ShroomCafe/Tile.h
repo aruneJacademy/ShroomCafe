@@ -13,8 +13,6 @@ struct FTileData
 {
 	GENERATED_BODY()
 
-public:
-
 	FVector2D WorldPos;
 	uint8 TileID{ 0 };
 	TArray<uint8> AllowedNeighbors;

@@ -32,10 +32,11 @@ bool FCell::IsCell(uint8 TileID) const
 
 int FCell::GetEntropy() const
 {
-	int Entropy = 0;
-	for (int i = 0; i < WFWeights.Num(); i++)
+	int Entropy{ 0 };
+	// skip unknown and path (0, 1); path is already collapsed
+	for (int i = 2; i < WFWeights.Num(); i++)
 	{
-		if (WFWeights[ i ] != -10.0f)
+		if (WFWeights[ i ] != AWFCManager::sEntropyThreshold)
 			Entropy++;
 	}
 	return Entropy;

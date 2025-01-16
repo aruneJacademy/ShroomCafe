@@ -34,10 +34,10 @@ public:
 	TArray< FTileData >WaveFunction;
 
 protected:
-	//int32 CellSize = 300;
 	TArray<TArray< FCell >>Cells;
 	int32 GridWidth;
 	int32 GridHeight;
+	float Randomness;
 
 	virtual void BeginPlay() override;
 
@@ -53,4 +53,7 @@ public:
 
 	void SetGridWidth(int32 width) { GridWidth = width; }
 	void SetGridHeight(int32 height) { GridHeight = height; }
+
+	void SetRandomness(float randomness) { Randomness = randomness; }
+	float GetRandomness() const { return Randomness; }
 };

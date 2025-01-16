@@ -9,6 +9,7 @@ namespace ProceduralPath
 {
 	void Generate(AWFCGrid* Grid, FCell* Start, FCell* End)
 	{
+		if (!Grid || !Start || !End) return;
 		FCell* CurrentCell = Start;
 		FVector CurrentPos = CurrentCell->GetWorldPos();
 		FVector TargetPos = End->GetWorldPos();
@@ -16,7 +17,7 @@ namespace ProceduralPath
 
 		TArray< FCell* > NextCells;
 
-		Start->SetWeight(static_cast<int>(ETileType::Path), 100.0f);
+		Start->SetWeight(static_cast< int >(ETileType::Path), 100.0f);
 		WFCAlgorithm::CollapseCell(Start);
 
 		while (!bTargetReached)
@@ -52,6 +53,7 @@ namespace ProceduralPath
 
 	void GetSurroundingCells(FCell* Current, TArray< FCell* >& Next)
 	{
+		if (!Current) return;
 		FIntPoint CurrentPos = Current->GetGridPos();
 
 		if (CurrentPos.X + 1 < Current->Grid->GetGridWidth())
@@ -89,20 +91,20 @@ namespace ProceduralWorld
 {
 	FCell* FindLowestEntropyCell(AWFCGrid* Grid)
 	{
+		if (!Grid) return nullptr;
+
 		int LowestEntropy = 10;
 		FCell* LowestEntropyCell = nullptr;
 
 		for (TArray< FCell >& Row : Grid->GetCells())
 		{
 			for (FCell& Cell : Row)
-			{
-				if (!Cell.bIsCollapsed)
+			{  
+				// will improve later - GetEntropy is costly / might help if stored as variable
+				if (!Cell.bIsCollapsed && Cell.GetEntropy() <= LowestEntropy)
 				{			
-					if (Cell.GetEntropy() <= LowestEntropy)
-					{
-						LowestEntropy = Cell.GetEntropy();
-						LowestEntropyCell = &Cell;
-					}
+					LowestEntropy = Cell.GetEntropy();
+					LowestEntropyCell = &Cell;			
 				}
 			}
 		}
@@ -112,6 +114,7 @@ namespace ProceduralWorld
 
 	void Generate(AWFCGrid* Grid)
 	{
+		if (!Grid) return;
 		bool bIsGridEmpty = false;
 
 		while (!bIsGridEmpty)
@@ -126,23 +129,26 @@ namespace ProceduralWorld
 
 			for (uint8 TileID : Cell->WaveFunction)
 			{
-				if (Cell->GetWeight(TileID) == -10.0f) continue;
-
-				auto It = WFCData::TileRarity.find(static_cast<ETileType>(TileID));
+				auto It = WFCData::TileRarity.find(static_cast< ETileType >(TileID));
 				float CurrentWeight = Cell->GetWeight(TileID) * It->second;
+				float randWeight = Grid->GetRandomness();
 
 				switch (TileID)
 				{
+				case static_cast<int> (ETileType::Unknown):
+				case static_cast<int> (ETileType::Path): 
+					Cell->SetWeight(TileID, AWFCManager::sEntropyThreshold); break;
+
 				case static_cast< int >(ETileType::Tree):
-					Cell->SetWeight(TileID, WFCWeightRules::TreeRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
+					Cell->SetWeight(TileID, WFCWeightRules::TreeRule(Cell) + FMath::FRandRange(-randWeight, randWeight));
 					break;
 
 				case static_cast< int >(ETileType::Bush):
-					Cell->SetWeight(TileID, WFCWeightRules::BushRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
+					Cell->SetWeight(TileID, WFCWeightRules::BushRule(Cell) + FMath::FRandRange(-randWeight, randWeight));
 					break;
 
 				case static_cast< uint8 >(ETileType::Grass):
-					Cell->SetWeight(TileID, WFCWeightRules::GrassRule(Cell) + FMath::FRandRange(-0.02f, 0.02f));
+					Cell->SetWeight(TileID, WFCWeightRules::GrassRule(Cell) + FMath::FRandRange(-randWeight, randWeight));
 					break;
 
 				default:

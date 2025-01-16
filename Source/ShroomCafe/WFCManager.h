@@ -19,6 +19,8 @@ public:
 	AWFCManager();
 	static const TCHAR* GetMeshString(uint8 TileID);
 
+	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,25 +41,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Grid")
 	void SpawnGrid();
 
-	// will be promoted to delegate later
+	UFUNCTION(BlueprintCallable, Category = "Grid")
 	void OnProceduralGeneration();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 GridWidth = 150;	
+	int32 GridWidth{ 150 };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 GridHeight = 150;
+	int32 GridHeight{ 150 };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	int32 TileSize = 300;
+	int32 TileSize{ 300 };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	float Randomness{ 0.02f };
 
 	int32 GetGridWidth() const { return GridWidth; }
 	int32 GetGridHeight() const { return GridHeight; }
-	static TArray<FTileData >& GetTiles() { return Tiles; }
+	static TArray<FTileData >& GetTiles() { return sTiles; }
 	AWFCGrid* GetGrid() { return Grid; }
-	static const float EntropyThreshold;
+	static const float sEntropyThreshold;
+	static float sMinMeshOffset;
+	static TArray< FTileData > sTiles;
+	static int32 sTileSize;
 	
-	static TArray< FTileData > Tiles;
 protected:
 	AWFCGrid* Grid{ nullptr };
 	ATileSpawner* TileSpawner{ nullptr };

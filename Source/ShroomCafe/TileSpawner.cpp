@@ -8,6 +8,9 @@
 #include "WFCManager.h"
 #include "WFCUtils.h"
 #include "TileSpawnRule.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ATileSpawner::ATileSpawner()
@@ -20,35 +23,62 @@ ATileSpawner::ATileSpawner()
 	{
 		BPClassRockTile = BPActor.Class;
 	}
-
 }
 
 // Called when the game starts or when spawned
 void ATileSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ATileSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ATileSpawner::SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID)
 {
-	ATile* Tile = WFCUtils::SpawnTile(Manager->GetWorld(), TileID);
-
+	if (!Manager || !Cell) return;
+	
+	ATile* Tile = SpawnTileInWorld(Manager->GetWorld(), TileID);
 	TileSpawnRule SpawnRule;
 
 	if (Tile)
 	{
 		Tile->SetActorLocation(Cell->GetWorldPos());
-		SpawnRule.SetMesh(Tile, &AWFCManager::Tiles[ TileID ], TileID);
+		SpawnRule.SetMesh(Tile, &AWFCManager::sTiles[ TileID ], TileID);
 		SpawnRule.SetCapsule(Tile, TileID);
 	}
+}
+
+
+ATile* ATileSpawner::SpawnTileInWorld(UWorld* World, uint8 TileID)
+{
+	if (!World) return nullptr;
+	ATile* NewTile{ nullptr };
+
+	if (TileID == static_cast< uint8 >(ETileType::Path))
+	{
+		AWFCManager* Manager = Cast< AWFCManager >(UGameplayStatics::GetActorOfClass(World, AWFCManager::StaticClass()));
+		ATileSpawner* TileSpawner = Cast< ATileSpawner >(UGameplayStatics::GetActorOfClass(World, ATileSpawner::StaticClass()));
+
+		// Ensure the class is valid before spawning
+		if (TileSpawner->GetRockTile())
+		{
+			AActor* SpawnedActor = World->SpawnActor<AActor>(TileSpawner->GetRockTile());
+			if (SpawnedActor)
+			{
+				NewTile = Cast< ATile >(SpawnedActor);
+			}
+		}
+	}
+	else
+	{
+		FActorSpawnParameters SpawnParams;
+		NewTile = World->SpawnActor< ATile >(ATile::StaticClass());
+	}
+	return NewTile;
 }
 
 

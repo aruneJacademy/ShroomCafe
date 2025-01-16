@@ -32,5 +32,5 @@ public:
 
 	// Function to notify animation change
 	UFUNCTION(BlueprintCallable, Category = "AI")
-	void NotifyChangeAnimation(FName NewAnimState);
+	void NotifyChangeAnimation(FName NewAnimState) const ;
 };

@@ -21,11 +21,8 @@ WFCUtils::~WFCUtils()
 
 UStaticMeshComponent* WFCUtils::GetTileMesh(FString TargetName, UWorld* World)
 {
-	if (!World)
-	{
-		return nullptr;
-	}
-
+	if (!World) return nullptr;
+	
 	// Array to store all actors of the desired class
 	TArray<AActor*> FoundActors;
 
@@ -55,37 +52,11 @@ UStaticMeshComponent* WFCUtils::GetTileMesh(FString TargetName, UWorld* World)
 	return nullptr;
 }
 
-ATile* WFCUtils::SpawnTile(UWorld* World, uint8 TileID)
-{
-	ATile* NewTile{ nullptr };
-
-	if (TileID == static_cast< uint8 >(ETileType::Path))
-	{
-		AWFCManager* Manager = Cast<AWFCManager>(UGameplayStatics::GetActorOfClass(World, AWFCManager::StaticClass()));
-		ATileSpawner* TileSpawner = Cast<ATileSpawner>(UGameplayStatics::GetActorOfClass(World, ATileSpawner::StaticClass()));
-
-		// Ensure the class is valid before spawning
-		if (TileSpawner->GetRockTile())
-		{
-			// Spawn the actor
-			AActor* SpawnedActor = World->SpawnActor<AActor>(TileSpawner->GetRockTile());
-			if (SpawnedActor)
-			{
-				NewTile = Cast<ATile>(SpawnedActor);
-			}
-		}
-	}
-	else
-	{
-		FActorSpawnParameters SpawnParams;
-		NewTile = World->SpawnActor< ATile >(ATile::StaticClass());
-	}
-	return NewTile;
-}
 
 
 void WFCUtils::SortCellsByDistance(FCell* Target, TArray< FCell* >& Cells)
 {
+	if (!Target) return;
 	TArray < float > Distances;
 
 	for (int i = 0; i < Cells.Num(); i++)
@@ -124,5 +95,20 @@ void WFCUtils::SortCellsByDistance(FCell* Target, TArray< FCell* >& Cells)
 
 bool WFCUtils::IsPositionWithinBounds(FIntPoint* Pos, AWFCGrid* Grid)
 {
+	if (!Grid || !Pos) return false;
 	return (Pos->X >= 0 && Pos->Y >= 0 && Pos->X < Grid->GetGridWidth() && Pos->Y < Grid->GetGridHeight());
+}
+
+FVector2D WFCUtils::GetRandomPosition(float tileSize, float angle) 
+{
+	float halfTileSize = tileSize / 2.0f;
+	float randomRadius = static_cast<float>(rand()) / RAND_MAX * halfTileSize;
+
+	float radius = FMath::Clamp(randomRadius, AWFCManager::sMinMeshOffset, halfTileSize);
+
+	// Convert polar coordinates to Cartesian coordinates
+	float x = radius * cos(angle);
+	float y = radius * sin(angle);
+
+	return FVector2D(x, y);
 }

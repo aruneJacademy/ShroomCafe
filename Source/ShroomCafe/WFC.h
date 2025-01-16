@@ -59,6 +59,7 @@ namespace WFCWeightUtils
 	int GetHighestWeightID(const TArray< float >& weights);
 
 	float AccumulateWeights(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int Layer);
+	float AccumulateWeightsOptimised(AWFCGrid* Grid, FCell* Cell, uint8 TileID, int Layer);
 }
 
 namespace WFCData

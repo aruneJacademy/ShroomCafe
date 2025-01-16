@@ -8,6 +8,8 @@
 
 class AWFCManager;
 struct FCell;
+class ATile;
+
 
 UCLASS()
 class SHROOMCAFE_API ATileSpawner : public AActor
@@ -23,10 +25,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UClass* BPClassRockTile{ nullptr };
+	ATile* SpawnTileInWorld(UWorld* World, uint8 TileID);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 	void SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID);
 };

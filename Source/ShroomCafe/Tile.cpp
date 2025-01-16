@@ -11,12 +11,7 @@ ATile::ATile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
-    // Add a Static Mesh Component
-    //InstancedMesh = CreateDefaultSubobject< UInstancedStaticMeshComponent>(TEXT("InstancedMesh"));
-    //Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-   // Mesh->SetupAttachment(RootComponent);
+    RootComponent = CreateDefaultSubobject< USceneComponent >(TEXT("RootComponent"));
 }
 
 // Called when the game starts or when spawned

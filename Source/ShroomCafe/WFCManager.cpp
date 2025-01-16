@@ -12,8 +12,10 @@
 #include "PG.h"
 #include "TileSpawner.h"
 
-const float AWFCManager::EntropyThreshold{ -10.0f };
-TArray< FTileData > AWFCManager::Tiles{};
+const float AWFCManager::sEntropyThreshold{ -10.0f };
+float AWFCManager::sMinMeshOffset{ 100.0f };
+int32 AWFCManager::sTileSize{ 300 };
+TArray< FTileData > AWFCManager::sTiles{};
 
 // Sets default values
 AWFCManager::AWFCManager()
@@ -23,7 +25,7 @@ AWFCManager::AWFCManager()
 
 	// construction helpers are meant to be called in the constructor only. Other places need to use Loaders and Finders
 	//static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Script/Engine.Blueprint'/Game/WFC/TileMeshUnknown.TileMeshUnknown'"));
-	WFCAlgorithm::GenerateWaveFunction(Tiles);
+	WFCAlgorithm::GenerateWaveFunction(sTiles);
 	
 }
 
@@ -41,7 +43,7 @@ void AWFCManager::Tick(float DeltaTime)
 
 	if (!bGenerated)
 	{
-		// will be promoted to delegate later
+		// will be called from BP later - maybe?
 		OnProceduralGeneration();
 		bGenerated = true;
 	}
@@ -68,10 +70,10 @@ void AWFCManager::InitializeGrid()
 	int Rows = GridWidth;
 	int Columns = GridHeight;
 
-	// Create the grid
 	Grid->GetCells().SetNum(Rows);
 	Grid->SetGridHeight(Columns);
 	Grid->SetGridWidth(Rows);
+	Grid->SetRandomness(Randomness);
 
 	for (int Row = 0; Row < Rows; ++Row)
 	{
@@ -92,7 +94,7 @@ void AWFCManager::InitializeGrid()
 			FVector ParentPos = GetActorLocation();
 
 			// Copy wave function into the cell
-			for (const FTileData& Tile : Tiles)
+			for (const FTileData& Tile : sTiles)
 			{
 				Cell.WaveFunction.Add(Tile.TileID);
 			}
@@ -154,16 +156,16 @@ void AWFCManager::OnProceduralGeneration()
 	InitializeGrid();
 
 	// WFC Algorithm
-	//GenerateGrid();
+	GenerateGrid();
 
 	// Spawn collapsed tiles in the worldS
-	//SpawnGrid();
+	SpawnGrid();
 }
 
 
 const TCHAR* AWFCManager::GetMeshString(uint8 TileID)
 {
-	for (FTileData& Tile : Tiles)
+	for (FTileData& Tile : sTiles)
 	{
 		if (Tile.TileID == TileID)
 		{
