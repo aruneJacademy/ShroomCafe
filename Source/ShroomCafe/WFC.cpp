@@ -286,7 +286,6 @@ namespace WFCWeightUtils
 			auto It = Weights.find(static_cast< ETileType >(i));
 			ret += gTileCounts[ i ] * It->second;
 		}
-
 		return ret;
 	}
 }

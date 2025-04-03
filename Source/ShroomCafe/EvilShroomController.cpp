@@ -17,5 +17,5 @@ AEvilShroomController::AEvilShroomController()
 
 void AEvilShroomController::NotifyChangeAnimation(FName NewAnimState) const
 {
-	OnChangeAnimation.Broadcast(NewAnimState); // Broadcast the delegate
+	OnChangeAnimation.Broadcast(NewAnimState);
 }
