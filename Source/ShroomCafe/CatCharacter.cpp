@@ -3,6 +3,7 @@
 #include "CatCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
+#include "CatProjectile.h"
 
 // Sets default values
 ACatCharacter::ACatCharacter()
@@ -11,6 +12,13 @@ ACatCharacter::ACatCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
+
+	//Initialize projectile class
+	ProjectileClass = ACatProjectile::StaticClass();
+	//Initialize fire rate
+	FireRate = 0.25f;
+	bIsFiringWeapon = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +39,11 @@ void ACatCharacter::Tick(float DeltaTime)
 void ACatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// Handle firing projectiles
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACatCharacter::StartFire);
+
+	UE_LOG(LogTemp, Warning, TEXT("Player component setup"));
 
 }
 
@@ -67,9 +80,12 @@ void ACatCharacter::OnHealthUpdate()
 
 }
 
-float ACatCharacter::TakeDamage(float damageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float ACatCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	return 0.f;
+
+	float DamageApplied = CurrentHealth - DamageTaken;
+	SetCurrentHealth(DamageApplied);
+	return DamageApplied;
 }
 
 void ACatCharacter::OnRep_CurrentHealth()
@@ -93,3 +109,31 @@ void ACatCharacter::SetCurrentHealth(float healthValue)
 	}
 }
 
+void ACatCharacter::StartFire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire button pressed!"));
+	if (!bIsFiringWeapon)
+	{
+		bIsFiringWeapon = true;
+		UWorld* World = GetWorld();
+		World->GetTimerManager().SetTimer(FiringTimer, this, &ACatCharacter::StopFire, FireRate, false);
+		HandleFire();
+	}
+
+}
+
+void ACatCharacter::StopFire()
+{
+	bIsFiringWeapon = false;
+}
+
+void ACatCharacter::HandleFire_Implementation()
+{
+	FVector spawnLocation = GetActorLocation() + (GetActorRotation().Vector() * 100.0f) + (GetActorUpVector() * 50.0f);
+	FRotator spawnRotation = GetActorRotation();
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Instigator = GetInstigator();
+	spawnParameters.Owner = this;
+	ACatProjectile* spawnedProjectile = GetWorld()->SpawnActor<ACatProjectile>(spawnLocation, spawnRotation, spawnParameters);
+
+}
