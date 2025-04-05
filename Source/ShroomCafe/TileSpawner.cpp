@@ -37,11 +37,11 @@ void ATileSpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ATileSpawner::SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID)
+void ATileSpawner::SpawnTile(UWorld* World, FCell* Cell, uint8 TileID)
 {
-	if (!Manager || !Cell) return;
+	if (!World || !Cell) return;
 	
-	ATile* Tile = SpawnTileInWorld(Manager->GetWorld(), TileID);
+	ATile* Tile = SpawnTileInWorld(World, TileID);
 	TileSpawnRule SpawnRule;
 
 	if (Tile)

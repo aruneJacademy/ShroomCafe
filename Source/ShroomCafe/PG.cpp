@@ -2,14 +2,18 @@
 #include "WFCManager.h"
 #include "WFC.h"
 #include "WFCUtils.h"
-#include  "WFC.h"
+#include  "TileSpawner.h"
 
 
 namespace ProceduralPath
 {
-	void Generate(AWFCGrid* Grid, FCell* Start, FCell* End)
+	void Generate(AWFCGrid* Grid, FCell* Start, FCell* End, UWorld* World)
 	{
 		if (!Grid || !Start || !End) return;
+		
+
+		static ATileSpawner* TileSpawner{ World->SpawnActor< ATileSpawner >(ATileSpawner::StaticClass()) };
+
 		FCell* CurrentCell = Start;
 		FVector CurrentPos = CurrentCell->GetWorldPos();
 		FVector TargetPos = End->GetWorldPos();
@@ -42,6 +46,7 @@ namespace ProceduralPath
 			// set weight very large to make sure it collapses
 			NextCell->SetWeight(static_cast< int >(ETileType::Path), 100.0f);
 			WFCAlgorithm::CollapseCell(NextCell);
+			TileSpawner->SpawnTile(World, NextCell, NextCell->WaveFunction[0]);
 
 			CurrentCell = NextCell;
 			NextCells.Empty();
@@ -111,11 +116,13 @@ namespace ProceduralWorld
 		return LowestEntropyCell;
 	}
 
+	
 
-	void Generate(AWFCGrid* Grid)
+	void Generate(AWFCGrid* Grid, UWorld* World)
 	{
 		if (!Grid) return;
 		bool bIsGridEmpty = false;
+		static ATileSpawner* TileSpawner{ World->SpawnActor< ATileSpawner >(ATileSpawner::StaticClass()) };
 
 		while (!bIsGridEmpty)
 		{
@@ -158,6 +165,7 @@ namespace ProceduralWorld
 			}
 
 			WFCAlgorithm::CollapseCell(Cell);
+			TileSpawner->SpawnTile(World, Cell, Cell->WaveFunction[0]);
 			WFCAlgorithm::PropagateConstraints(Cell);
 		}
 	}

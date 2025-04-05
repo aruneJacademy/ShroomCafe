@@ -44,11 +44,11 @@ void AWFCManager::Tick(float DeltaTime)
 	if (!bGenerated)
 	{
 		// will be called from BP later - maybe?
-		OnProceduralGeneration();
-		bGenerated = true;
+		//OnProceduralGeneration();
+		//bGenerated = true;
 	}
 
-	DrawDebugGrid();
+	//DrawDebugGrid();
 }
 
 void AWFCManager::DrawDebugGrid()
@@ -110,18 +110,20 @@ void AWFCManager::GenerateGrid()
 {
 	for (auto Path : WFCData::PathCoords)
 	{
+		if (Grid->GetGridWidth() < 150 || Grid->GetGridHeight() < 150) break;
 		FIntPoint& PathStart = Path[ 0 ];
 		FIntPoint& PathEnd = Path[ 1 ];
 
 		ProceduralPath::Generate
 		(
 			Grid,
-			&Grid->GetCells()[ PathStart.X ][ PathStart.Y ], // start of path
-			&Grid->GetCells()[ PathEnd.X ][ PathEnd.Y ] // end of path
+			&Grid->GetCells()[PathStart.X][PathStart.Y], // start of path
+			&Grid->GetCells()[PathEnd.X][PathEnd.Y], // end of path
+			this->GetWorld()
 		);
 	}
 
-	ProceduralWorld::Generate(Grid);
+	ProceduralWorld::Generate(Grid, this->GetWorld());
 }
 
 void AWFCManager::SpawnGrid()
@@ -142,7 +144,7 @@ void AWFCManager::SpawnGrid()
 				continue;
 			}
 
-			TileSpawner->SpawnTile(this, &Cell, ChosenTile);
+			TileSpawner->SpawnTile(this->GetWorld(), &Cell, ChosenTile);
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Grid Spawned!"));
@@ -156,10 +158,10 @@ void AWFCManager::OnProceduralGeneration()
 	InitializeGrid();
 
 	// WFC Algorithm
-	//GenerateGrid();
+	GenerateGrid();
 
 	// Spawn collapsed tiles in the worldS
-	SpawnGrid();
+	//SpawnGrid();
 }
 
 

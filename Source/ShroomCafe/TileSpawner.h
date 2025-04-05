@@ -30,5 +30,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void SpawnTile(AWFCManager* Manager, FCell* Cell, uint8 TileID);
+	void SpawnTile(UWorld* World, FCell* Cell, uint8 TileID);
 };
